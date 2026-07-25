@@ -1,13 +1,12 @@
 import { Navigate, Outlet } from 'react-router-dom';
-
-const TOKEN_KEY = 'quaero_token';
+import useAuth from '../hooks/useAuth';
 
 /**
  * Wraps routes that require authentication.
- * Redirects to /login if no token is found in localStorage.
+ * Redirects to /login if no token is found in AuthContext.
  */
 const ProtectedRoute = () => {
-  const token = localStorage.getItem(TOKEN_KEY);
+  const { token } = useAuth();
   return token ? <Outlet /> : <Navigate to="/login" replace />;
 };
 

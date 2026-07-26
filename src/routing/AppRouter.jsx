@@ -1,12 +1,13 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute';
+import AuthLayout from '../layouts/AuthLayout';
+import SignupPage from '../pages/SignupPage';
+import LoginPage from '../pages/LoginPage';
 
 // ---------------------------------------------------------------------------
 // Placeholder pages — swap these out as real pages are built
 // ---------------------------------------------------------------------------
 const HomePage = () => <div>Home Page (placeholder)</div>;
-const LoginPage = () => <div>Login Page (placeholder)</div>;
-const SignupPage = () => <div>Signup Page (placeholder)</div>;
 const ProfilePage = () => <div>Profile Page (placeholder)</div>;
 const NotFoundPage = () => <div>404 — Page Not Found</div>;
 
@@ -14,14 +15,19 @@ const NotFoundPage = () => <div>404 — Page Not Found</div>;
 // Route tree
 // ---------------------------------------------------------------------------
 const router = createBrowserRouter([
-  // Public routes
+  // Public routes wrapped in AuthLayout
   {
-    path: '/login',
-    element: <LoginPage />,
-  },
-  {
-    path: '/signup',
-    element: <SignupPage />,
+    element: <AuthLayout />,
+    children: [
+      {
+        path: '/login',
+        element: <LoginPage />,
+      },
+      {
+        path: '/signup',
+        element: <SignupPage />,
+      },
+    ],
   },
 
   // Protected routes — require a valid token

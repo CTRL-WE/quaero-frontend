@@ -6,11 +6,11 @@ import SignupPage from '../pages/SignupPage';
 import LoginPage from '../pages/LoginPage';
 import FeedPage from '../pages/FeedPage';
 import BriefPage from '../pages/BriefPage';
+import ProfilePage from '../pages/ProfilePage';
 
 // ---------------------------------------------------------------------------
 // Placeholder pages — swap these out as real pages are built
 // ---------------------------------------------------------------------------
-const ProfilePage = () => <div>Profile Page (placeholder)</div>;
 const NotFoundPage = () => <div>404 — Page Not Found</div>;
 
 // ---------------------------------------------------------------------------

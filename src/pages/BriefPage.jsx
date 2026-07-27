@@ -77,10 +77,10 @@ function BriefPage() {
 
   /* ---------- Brief content ---------- */
   return (
-    <article className="mx-auto w-full max-w-2xl px-4 py-10 sm:px-6">
+    <article className="mx-auto w-full max-w-2xl px-4 py-6 sm:py-10 sm:px-6">
       <Link
         to="/"
-        className="mb-6 inline-flex items-center gap-1 text-sm text-gray-500
+        className="mb-6 inline-flex items-center gap-1 py-2 text-sm text-gray-500
                    transition-colors hover:text-gray-300"
       >
         <svg
@@ -99,18 +99,18 @@ function BriefPage() {
         Back to Feed
       </Link>
 
-      <h1 className="text-2xl font-bold leading-tight tracking-tight text-gray-100 sm:text-3xl">
+      <h1 className="text-2xl font-bold leading-tight tracking-tight text-gray-100 break-words sm:text-3xl">
         {brief.claim}
       </h1>
 
-      <p className="mt-6 whitespace-pre-line text-base leading-relaxed text-gray-400">
+      <p className="mt-6 whitespace-pre-line break-words text-base leading-relaxed text-gray-400">
         {brief.publicEvidence}
       </p>
 
       {/* TODO: wire to investigation flow once built */}
       <button
         type="button"
-        className="mt-10 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3
+        className="mt-10 inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3
                    text-sm font-semibold text-white shadow-sm transition-all
                    hover:bg-blue-700 hover:shadow-md active:scale-[0.98]"
       >

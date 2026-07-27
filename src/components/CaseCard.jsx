@@ -8,7 +8,7 @@ function CaseCard({ id, claim, evidenceTeaser, completed }) {
       type="button"
       onClick={() => navigate(`/cases/${id}/brief`)}
       className="relative w-full text-left rounded-2xl border border-gray-800 bg-gray-900
-                 p-5 shadow-sm transition-all duration-200
+                 p-4 sm:p-5 shadow-sm transition-all duration-200
                  hover:shadow-md hover:border-blue-500/50 hover:-translate-y-0.5
                  focus-visible:outline-2 focus-visible:outline-blue-500"
     >
@@ -35,7 +35,7 @@ function CaseCard({ id, claim, evidenceTeaser, completed }) {
         </span>
       )}
 
-      <h3 className="pr-24 text-base font-semibold text-gray-100 leading-snug">
+      <h3 className="pr-16 sm:pr-24 text-base font-semibold text-gray-100 leading-snug break-words">
         {claim}
       </h3>
 

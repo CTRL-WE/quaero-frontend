@@ -66,7 +66,7 @@ function ProfilePage() {
         <button
           type="button"
           onClick={fetchProfile}
-          className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white
+          className="min-h-[44px] w-full sm:w-auto rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white
                      transition-colors hover:bg-blue-700"
         >
           Retry
@@ -79,10 +79,10 @@ function ProfilePage() {
   const { username, totalXp, credibilityScore, rank } = profile ?? {};
 
   return (
-    <section className="flex flex-1 items-start justify-center px-4 py-12 sm:px-6">
+    <section className="flex flex-1 items-start justify-center px-4 py-6 sm:py-12 sm:px-6">
       <div
         className="w-full max-w-md rounded-2xl border border-gray-800 bg-gray-900
-                    p-8 shadow-lg"
+                    p-5 sm:p-8 shadow-lg"
       >
         {/* Avatar placeholder + username */}
         <div className="flex flex-col items-center gap-3">
@@ -93,7 +93,7 @@ function ProfilePage() {
             {(username ?? '?')[0].toUpperCase()}
           </div>
 
-          <h1 className="text-xl font-bold tracking-tight text-gray-100">
+          <h1 className="text-xl font-bold tracking-tight text-gray-100 truncate max-w-full">
             {username ?? 'Unknown'}
           </h1>
 
@@ -105,7 +105,7 @@ function ProfilePage() {
           {/* Total XP */}
           <div
             className="flex flex-col items-center rounded-xl border border-gray-800
-                        bg-gray-950 px-4 py-5"
+                        bg-gray-950 px-2 sm:px-4 py-5"
           >
             <span className="text-2xl font-bold text-gray-100">
               {totalXp ?? 0}
@@ -118,7 +118,7 @@ function ProfilePage() {
           {/* Credibility Score */}
           <div
             className="flex flex-col items-center rounded-xl border border-gray-800
-                        bg-gray-950 px-4 py-5"
+                        bg-gray-950 px-2 sm:px-4 py-5"
           >
             <span className="text-2xl font-bold text-gray-100">
               {credibilityScore ?? 0}

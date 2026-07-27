@@ -1,1 +1,13 @@
 @import "tailwindcss";
+
+/* Typing indicator dot animation (used by TypingIndicator component) */
+@keyframes typingDot {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-6px);
+    opacity: 1;
+  }
+}

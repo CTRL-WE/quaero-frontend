@@ -1,3 +1,4 @@
+import { useParams } from 'react-router-dom';
 import useInvestigationSession from '../hooks/useInvestigationSession';
 import ChatMessageList from '../components/ChatMessageList';
 import ChatInput from '../components/ChatInput';
@@ -10,9 +11,11 @@ import ChatInput from '../components/ChatInput';
 //   • ChatMessageList          → renders messages + typing indicator
 //   • ChatInput                → textarea + send button
 //
-// Uses mock service data — no real API calls yet.
+// Reads caseId from the URL via useParams() (route: /chat/:caseId).
 // ---------------------------------------------------------------------------
 function ChatPage() {
+  const { caseId } = useParams();
+
   const {
     messages,
     isLoading,
@@ -20,7 +23,7 @@ function ChatPage() {
     error,
     send,
     clearError,
-  } = useInvestigationSession('1024');
+  } = useInvestigationSession(caseId);
 
   // -----------------------------------------------------------------------
   return (
@@ -38,7 +41,7 @@ function ChatPage() {
             </p>
           </div>
           <span className="rounded-full bg-indigo-500/10 border border-indigo-500/20 px-3 py-1 text-xs font-medium text-indigo-400">
-            Case #1024
+            Case #{caseId}
           </span>
         </div>
       </div>

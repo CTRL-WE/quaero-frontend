@@ -1,5 +1,10 @@
-/* eslint-disable no-unused-vars */
 import apiClient from '../api/apiClient';
+
+// ---------------------------------------------------------------------------
+// Environment flag — set VITE_USE_MOCK_API=true in .env to fall back to
+// in-memory mocks when the backend is unreachable.
+// ---------------------------------------------------------------------------
+const USE_MOCK = import.meta.env.VITE_USE_MOCK_API === 'true';
 
 // ---------------------------------------------------------------------------
 // Mock data — Socratic AI-mentor responses for investigations
@@ -19,92 +24,14 @@ const randomAIResponse = () =>
   MOCK_AI_RESPONSES[Math.floor(Math.random() * MOCK_AI_RESPONSES.length)];
 
 // ---------------------------------------------------------------------------
-// Placeholder methods — return mock promises so the UI can be developed
-// independently of the backend.  Swap in the commented-out Axios calls
-// once the real investigation API is live.
+// Mock implementations (used when USE_MOCK is true)
 // ---------------------------------------------------------------------------
 
-/**
- * Start a new investigation session for a given case.
- *
- * @param {string|number} caseId - The case to investigate
- * @returns {Promise<{ sessionId: string, caseId: string|number, status: string, createdAt: string }>}
- */
-export const startSession = async (caseId) => {
-  // TODO: replace with real apiClient call once Investigation endpoint is live
-  return new Promise((resolve) => {
+const mockGetSessionStatus = async (caseId) =>
+  new Promise((resolve) => {
     setTimeout(() => {
       resolve({
-        sessionId: `session-${Date.now()}`,
         caseId,
-        status: 'active',
-        createdAt: new Date().toISOString(),
-      });
-    }, 400);
-  });
-};
-
-/*
-// Real Axios implementation:
-export const startSession = async (caseId) => {
-  const response = await apiClient.post('/investigations/sessions', { caseId });
-  return response.data;
-};
-*/
-
-/**
- * Send a user message within an investigation session and receive an AI reply.
- *
- * @param {string} sessionId - Active session identifier
- * @param {string} text      - The user's message text
- * @returns {Promise<{ userMsg: object, aiMsg: object }>}
- */
-export const sendMessage = async (sessionId, text) => {
-  // TODO: replace with real apiClient call once Investigation endpoint is live
-  return new Promise((resolve) => {
-    const userMsg = {
-      id: ++mockIdCounter,
-      sender: 'USER',
-      text,
-      timestamp: new Date().toISOString(),
-    };
-
-    setTimeout(() => {
-      const aiMsg = {
-        id: ++mockIdCounter,
-        sender: 'AI',
-        text: randomAIResponse(),
-        timestamp: new Date().toISOString(),
-      };
-      resolve({ userMsg, aiMsg });
-    }, 800 + Math.random() * 1200); // 0.8–2s simulated latency
-  });
-};
-
-/*
-// Real Axios implementation:
-export const sendMessage = async (sessionId, text) => {
-  const response = await apiClient.post(
-    `/investigations/${sessionId}/messages`,
-    { text },
-  );
-  return response.data;
-};
-*/
-
-/**
- * Retrieve an existing investigation session and its message history.
- *
- * @param {string} sessionId - Session to fetch
- * @returns {Promise<{ sessionId: string, caseId: string, status: string, messages: object[] }>}
- */
-export const getSession = async (sessionId) => {
-  // TODO: replace with real apiClient call once Investigation endpoint is live
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        sessionId,
-        caseId: '1024',
         status: 'active',
         messages: [
           {
@@ -129,12 +56,75 @@ export const getSession = async (sessionId) => {
       });
     }, 300);
   });
-};
 
-/*
-// Real Axios implementation:
-export const getSession = async (sessionId) => {
-  const response = await apiClient.get(`/investigations/${sessionId}`);
+const mockSendMessage = async (caseId, text) =>
+  new Promise((resolve) => {
+    const userMsg = {
+      id: ++mockIdCounter,
+      sender: 'USER',
+      text,
+      timestamp: new Date().toISOString(),
+    };
+
+    setTimeout(() => {
+      const aiMsg = {
+        id: ++mockIdCounter,
+        sender: 'AI',
+        text: randomAIResponse(),
+        timestamp: new Date().toISOString(),
+      };
+      resolve({ userMsg, aiMsg });
+    }, 800 + Math.random() * 1200);
+  });
+
+// ---------------------------------------------------------------------------
+// Real API implementations
+//
+// Contract (DS v1.0 / API Blueprint §5):
+//   GET  /investigations/{caseId}/status   → { caseId, status, messages[] }
+//   POST /investigations/{caseId}/messages  → ChatMessageResponse
+//        Body: { caseId, text }
+//        Resp: { aiReply, turnCount, nudgeSubmission }
+//
+// All requests go through the shared apiClient which attaches the JWT and
+// normalizes errors via the ApiErrorResponse interceptor.
+// ---------------------------------------------------------------------------
+
+const realGetSessionStatus = async (caseId) => {
+  const response = await apiClient.get(`/investigations/${caseId}/status`);
   return response.data;
 };
-*/
+
+const realSendMessage = async (caseId, text) => {
+  const response = await apiClient.post(
+    `/investigations/${caseId}/messages`,
+    { caseId, text },
+  );
+  return response.data;
+};
+
+// ---------------------------------------------------------------------------
+// Public API — delegates to mock or real based on USE_MOCK flag
+// ---------------------------------------------------------------------------
+
+/**
+ * Check whether an investigation session already exists for a case.
+ * Returns the session status and any prior conversation history.
+ *
+ * @param {string|number} caseId - The case to check
+ * @returns {Promise<{ caseId: string, status: string, messages: object[] }>}
+ */
+export const getSessionStatus = USE_MOCK ? mockGetSessionStatus : realGetSessionStatus;
+
+/**
+ * Send a user message within an investigation and receive an AI reply.
+ *
+ * Mock mode returns { userMsg, aiMsg }.
+ * Real mode returns the raw ChatMessageResponse from the API:
+ *   { aiReply, turnCount, nudgeSubmission }
+ *
+ * @param {string|number} caseId - The case being investigated
+ * @param {string} text          - The user's message text
+ * @returns {Promise<object>}
+ */
+export const sendMessage = USE_MOCK ? mockSendMessage : realSendMessage;

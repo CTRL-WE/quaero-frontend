@@ -1,37 +1,43 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import {
-  startSession,
+  getSessionStatus,
   sendMessage,
-  getSession,
 } from '../services/investigationService';
+
+// ---------------------------------------------------------------------------
+// Environment flag — when true, the hook uses mock response shapes
+// (userMsg / aiMsg) instead of the real ChatMessageResponse shape.
+// ---------------------------------------------------------------------------
+const USE_MOCK = import.meta.env.VITE_USE_MOCK_API === 'true';
 
 // ---------------------------------------------------------------------------
 // useInvestigationSession
 //
 // Manages the full lifecycle of an investigation chat session:
-//   • starting / resuming a session
-//   • sending messages (with optimistic user-message append)
-//   • loading & error states
+//   • resuming an existing session via GET /investigations/{caseId}/status
+//   • sending messages via POST /investigations/{caseId}/messages
+//   • optimistic user-message rendering
+//   • per-message retry-capable error state (never clears the conversation)
 //
-// All data currently comes from mock promises in investigationService.
-// When the real backend is live, only the service layer changes — this
-// hook and every component that uses it stay exactly the same.
+// When VITE_USE_MOCK_API=true, delegates to in-memory mocks so the UI
+// works without a running backend.
 // ---------------------------------------------------------------------------
 
 /**
  * @param {string|number|null} caseId
- *   If provided the hook will automatically start a session on mount.
+ *   If provided the hook will automatically initialise on mount.
  *   Pass `null` to defer initialisation (call `initSession` manually).
  *
  * @returns {{
- *   messages:    Array<{ id: number, sender: 'AI'|'USER', text: string, timestamp: string }>,
- *   isLoading:   boolean,
- *   isSending:   boolean,
- *   error:       string | null,
- *   sessionId:   string | null,
- *   send:        (text: string) => Promise<void>,
- *   initSession: (caseId: string|number) => Promise<void>,
- *   clearError:  () => void,
+ *   messages:         Array<{ id: number|string, sender: 'AI'|'USER', text: string, timestamp: string }>,
+ *   isLoading:        boolean,
+ *   isSending:        boolean,
+ *   error:            string | null,
+ *   nudgeSubmission:  boolean,
+ *   send:             (text: string) => Promise<void>,
+ *   retrySend:        (text: string) => Promise<void>,
+ *   initSession:      (caseId: string|number) => Promise<void>,
+ *   clearError:       () => void,
  * }}
  */
 const useInvestigationSession = (caseId = null) => {
@@ -40,24 +46,35 @@ const useInvestigationSession = (caseId = null) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState(null);
-  const [sessionId, setSessionId] = useState(null);
+  const [nudgeSubmission, setNudgeSubmission] = useState(false);
+
+  // Track the active caseId so send() doesn't need it as a parameter
+  const activeCaseId = useRef(null);
+
+  // Monotonically increasing client-side id for optimistic messages
+  const nextOptimisticId = useRef(0);
 
   // ---- Initialise / resume a session --------------------------------------
   const initSession = useCallback(async (id) => {
     setIsLoading(true);
     setError(null);
+    activeCaseId.current = id;
 
     try {
-      // 1. Create a new session for the case
-      const session = await startSession(id);
-      setSessionId(session.sessionId);
-
-      // 2. Fetch the conversation history (may include a welcome message)
-      const data = await getSession(session.sessionId);
+      // Check whether a session already exists for this case.
+      // The real API has no separate "create session" endpoint — sessions
+      // are created implicitly by the messages endpoint if none exists yet.
+      const data = await getSessionStatus(id);
       setMessages(data.messages ?? []);
     } catch (err) {
-      console.error('[useInvestigationSession] initSession failed:', err);
-      setError(err.message || 'Failed to start investigation session.');
+      // A 404 means no session exists yet — that's fine, the first
+      // sendMessage call will implicitly create one.
+      if (err.response?.status === 404) {
+        setMessages([]);
+      } else {
+        console.error('[useInvestigationSession] initSession failed:', err);
+        setError(err.response?.data?.message || err.message || 'Failed to load investigation session.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -74,24 +91,84 @@ const useInvestigationSession = (caseId = null) => {
   const send = useCallback(
     async (text) => {
       const trimmed = text.trim();
-      if (!trimmed || !sessionId) return;
+      if (!trimmed || !activeCaseId.current) return;
 
+      // -- Optimistic append of the user's message --------------------------
+      const optimisticId = `optimistic-${++nextOptimisticId.current}`;
+      const optimisticMsg = {
+        id: optimisticId,
+        sender: 'USER',
+        text: trimmed,
+        timestamp: new Date().toISOString(),
+      };
+
+      setMessages((prev) => [...prev, optimisticMsg]);
       setIsSending(true);
       setError(null);
 
       try {
-        const { userMsg, aiMsg } = await sendMessage(sessionId, trimmed);
+        if (USE_MOCK) {
+          // Mock returns { userMsg, aiMsg }
+          const { userMsg, aiMsg } = await sendMessage(activeCaseId.current, trimmed);
 
-        // Append both the user's message and the AI reply
-        setMessages((prev) => [...prev, userMsg, aiMsg]);
+          setMessages((prev) => {
+            // Replace the optimistic message with the "real" mock message,
+            // then append the AI reply.
+            const withoutOptimistic = prev.filter((m) => m.id !== optimisticId);
+            return [...withoutOptimistic, userMsg, aiMsg];
+          });
+        } else {
+          // Real API returns ChatMessageResponse:
+          //   { aiReply, turnCount, nudgeSubmission }
+          const data = await sendMessage(activeCaseId.current, trimmed);
+
+          const aiMsg = {
+            id: `ai-${Date.now()}`,
+            sender: 'AI',
+            text: data.aiReply,
+            timestamp: new Date().toISOString(),
+          };
+
+          // Replace optimistic id with a stable one and append AI reply
+          setMessages((prev) => {
+            const updated = prev.map((m) =>
+              m.id === optimisticId ? { ...m, id: `user-${Date.now()}` } : m,
+            );
+            return [...updated, aiMsg];
+          });
+
+          if (data.nudgeSubmission) {
+            setNudgeSubmission(true);
+          }
+        }
       } catch (err) {
         console.error('[useInvestigationSession] send failed:', err);
-        setError(err.message || 'Failed to send message.');
+
+        // Surface a retry-capable error on the *specific* failed message —
+        // never clear the rest of the conversation (per Frontend Handbook
+        // Screen 5 Error States).
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === optimisticId ? { ...m, failed: true } : m,
+          ),
+        );
+        setError(err.response?.data?.message || err.message || 'Failed to send message. Tap to retry.');
       } finally {
         setIsSending(false);
       }
     },
-    [sessionId],
+    [],
+  );
+
+  // ---- Retry a failed message ---------------------------------------------
+  const retrySend = useCallback(
+    async (text) => {
+      // Remove any failed messages that match this text before resending,
+      // so the user doesn't see duplicates.
+      setMessages((prev) => prev.filter((m) => !(m.failed && m.text === text)));
+      await send(text);
+    },
+    [send],
   );
 
   // ---- Helpers ------------------------------------------------------------
@@ -103,8 +180,9 @@ const useInvestigationSession = (caseId = null) => {
     isLoading,
     isSending,
     error,
-    sessionId,
+    nudgeSubmission,
     send,
+    retrySend,
     initSession,
     clearError,
   };

@@ -2,6 +2,92 @@ import { useState, useEffect, useCallback } from 'react';
 import { getProfile } from '../services/profileService';
 import RankBadge from '../components/RankBadge';
 
+/* ── Icons for reserved sections ─────────────────────────────────── */
+
+function TrophyIcon() {
+  return (
+    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 9H4.5a2.5 2.5 0 010-5H6M18 9h1.5a2.5 2.5 0 000-5H18M4 22h16M10 22V14M14 22V14" />
+      <path d="M18 2H6v7a6 6 0 006 6 6 6 0 006-6V2z" />
+    </svg>
+  );
+}
+
+function BadgeIcon() {
+  return (
+    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 15l-3.5 2 1-4L6 10l4-.5L12 6l2 3.5 4 .5-3.5 3 1 4z" />
+      <circle cx="12" cy="12" r="10" />
+    </svg>
+  );
+}
+
+function LeaderboardIcon() {
+  return (
+    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+      <rect x="4" y="14" width="4" height="8" rx="1" />
+      <rect x="10" y="8" width="4" height="14" rx="1" />
+      <rect x="16" y="11" width="4" height="11" rx="1" />
+    </svg>
+  );
+}
+
+function FlameIcon() {
+  return (
+    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 22c4.97 0 7-3.58 7-7 0-3-1.5-5.5-3-7.5-.7-.93-1.4-1.78-2-2.73-.4-.63-.78-1.3-1-2.02 0 0-1 1.62-1.5 2.75-.58 1.3-1.5 2.6-2.5 3.75C7.5 11 6 13 5.5 15c-.36 1.43-.5 3 .5 4.5 1.06 1.57 3.15 2.5 6 2.5z" />
+    </svg>
+  );
+}
+
+function CalendarIcon() {
+  return (
+    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2" />
+      <path d="M16 2v4M8 2v4M3 10h18" />
+    </svg>
+  );
+}
+
+function LockIcon() {
+  return (
+    <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="11" width="18" height="11" rx="2" />
+      <path d="M7 11V7a5 5 0 0110 0v4" />
+    </svg>
+  );
+}
+
+/* ── ReservedSection — "Coming soon" placeholder block ───────────── */
+
+function ReservedSection({ title, icon }) {
+  return (
+    <div
+      className="flex items-center gap-3 rounded-xl border border-dashed border-gray-700
+                 bg-gray-950/50 px-4 py-4"
+    >
+      {/* Section icon */}
+      <span className="text-gray-600">{icon}</span>
+
+      {/* Title */}
+      <span className="text-sm font-medium text-gray-500">{title}</span>
+
+      {/* Spacer */}
+      <span className="flex-1" />
+
+      {/* Coming soon pill */}
+      <span
+        className="inline-flex items-center gap-1 rounded-full bg-gray-800/60
+                   px-2.5 py-0.5 text-[11px] font-medium leading-none text-gray-500
+                   ring-1 ring-gray-700/50"
+      >
+        <LockIcon />
+        Coming soon
+      </span>
+    </div>
+  );
+}
+
 function ProfilePage() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -127,6 +213,15 @@ function ProfilePage() {
               Credibility
             </span>
           </div>
+        </div>
+
+        {/* ── Reserved future sections ── */}
+        <div className="mt-8 space-y-4">
+          <ReservedSection title="Achievements" icon={<TrophyIcon />} />
+          <ReservedSection title="Badges" icon={<BadgeIcon />} />
+          <ReservedSection title="Leaderboard" icon={<LeaderboardIcon />} />
+          <ReservedSection title="Daily Streak" icon={<FlameIcon />} />
+          <ReservedSection title="Season Progress" icon={<CalendarIcon />} />
         </div>
       </div>
     </section>

@@ -48,7 +48,7 @@ function FeedPage() {
             d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
           />
         </svg>
-        <span className="ml-3 text-sm text-gray-400">Loading cases…</span>
+        <span className="ml-3 text-sm text-gray-400">Loading…</span>
       </div>
     );
   }
@@ -79,7 +79,7 @@ function FeedPage() {
   if (cases.length === 0) {
     return (
       <div className="flex flex-1 items-center justify-center p-10">
-        <p className="text-sm text-gray-500">No cases published yet.</p>
+        <p className="text-sm text-gray-500">Nothing to discover yet.</p>
       </div>
     );
   }
@@ -87,7 +87,7 @@ function FeedPage() {
   /* ---------- Feed grid ---------- */
   return (
     <section className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-      <h1 className="mb-6 text-2xl font-bold tracking-tight">Case Feed</h1>
+      <h1 className="mb-6 text-2xl font-bold tracking-tight">Discover</h1>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {cases.map((c) => (

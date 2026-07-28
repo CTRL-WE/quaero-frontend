@@ -91,13 +91,7 @@ function FeedPage() {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {cases.map((c) => (
-          <CaseCard
-            key={c.id}
-            id={c.id}
-            claim={c.claim}
-            evidenceTeaser={c.evidenceTeaser}
-            completed={c.completed}
-          />
+          <CaseCard key={c.id} {...c} />
         ))}
       </div>
     </section>

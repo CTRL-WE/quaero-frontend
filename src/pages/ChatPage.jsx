@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom';
 import useInvestigationSession from '../hooks/useInvestigationSession';
 import useCaseBrief from '../hooks/useCaseBrief';
+import useEvidenceLocker from '../hooks/useEvidenceLocker';
 import ReferencePostStrip from '../components/ReferencePostStrip';
 import ChatMessageList from '../components/ChatMessageList';
 import ChatInput from '../components/ChatInput';
@@ -13,7 +14,7 @@ import InvestigationProgress from '../components/InvestigationProgress';
 // Four simultaneously visible zones on a single screen:
 //   1. Reference Post   — collapsed top strip showing the original claim
 //   2. AI Mentor        — existing ChatMessageList + ChatInput (unchanged)
-//   3. Evidence Locker   — placeholder (Prompt 5)
+//   3. Evidence Locker   — client-side evidence collection (DS v2.0 §5)
 //   4. Investigation Progress — persistent progress indicator + submit CTA
 //
 // Layout:
@@ -49,6 +50,17 @@ function ChatPage() {
   } = useInvestigationSession(caseId);
 
   const { brief, loading: briefLoading } = useCaseBrief(caseId);
+
+  // Evidence Locker — client-side only, keyed by caseId, survives
+  // in-workspace navigation.  serialize() produces the plain-text
+  // evidenceLinks payload for Prompt 6's Submission form.
+  const {
+    entries: evidenceEntries,
+    addEntry: addEvidence,
+    removeEntry: removeEvidence,
+    updateEntryStatus: updateEvidenceStatus,
+    serialize: serializeEvidence,    // eslint-disable-line no-unused-vars
+  } = useEvidenceLocker(caseId);
 
   // Placeholder handler — will route to the Submission screen once it exists
   const handleSubmitInvestigation = () => {
@@ -131,9 +143,15 @@ function ChatPage() {
             ============================================================== */}
         <div className="flex shrink-0 flex-col lg:w-[280px] border-t border-gray-800/60 lg:border-t-0 lg:border-l lg:border-gray-800/60">
 
-          {/* Panel 3 — Evidence Locker (placeholder) */}
+          {/* Panel 3 — Evidence Locker */}
           <div className="flex flex-1 flex-col min-h-[140px] lg:min-h-0 overflow-y-auto">
-            <EvidenceLocker />
+            <EvidenceLocker
+              entries={evidenceEntries}
+              onAdd={addEvidence}
+              onRemove={removeEvidence}
+              onStatusChange={updateEvidenceStatus}
+              disabled={isSubmitted}
+            />
           </div>
 
           {/* Panel 4 — Investigation Progress */}

@@ -91,7 +91,7 @@ function ChatPage() {
             Panel 2 — AI Mentor (chat)
             The existing ChatMessageList + ChatInput, unchanged in behavior.
             ============================================================== */}
-        <div className="flex flex-1 flex-col overflow-hidden min-w-0">
+        <div className="flex flex-1 flex-col overflow-hidden min-w-0 min-h-[50vh] lg:min-h-0">
 
           {/* Loading skeleton */}
           {isLoading && (
@@ -142,7 +142,7 @@ function ChatPage() {
             On lg+ this is a single vertical column to the right of the
             chat. On mobile the panels stack below.
             ============================================================== */}
-        <div className="flex shrink-0 flex-col lg:w-[280px] border-t border-gray-800/60 lg:border-t-0 lg:border-l lg:border-gray-800/60">
+        <div className="flex shrink-0 flex-col max-h-[40vh] lg:max-h-none lg:w-[280px] border-t border-gray-800/60 lg:border-t-0 lg:border-l lg:border-gray-800/60 overflow-y-auto lg:overflow-y-visible">
 
           {/* Panel 3 — Evidence Locker */}
           <div className="flex flex-1 flex-col min-h-[140px] lg:min-h-0 overflow-y-auto">

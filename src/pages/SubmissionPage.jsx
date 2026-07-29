@@ -344,10 +344,10 @@ function SubmissionPage() {
           {/* ============================================================
               Submit button
               ============================================================ */}
-          <div className="flex items-center justify-end gap-3 border-t border-gray-800/60 pt-6">
+          <div className="flex flex-col-reverse gap-3 border-t border-gray-800/60 pt-6 sm:flex-row sm:items-center sm:justify-end">
             <Link
               to={`/chat/${caseId}`}
-              className="rounded-lg border border-gray-700/80 px-5 py-2.5 text-sm font-medium text-gray-400 transition-colors hover:border-gray-600 hover:text-gray-300"
+              className="rounded-lg border border-gray-700/80 px-5 py-2.5 text-center text-sm font-medium text-gray-400 transition-colors hover:border-gray-600 hover:text-gray-300"
             >
               Back to investigation
             </Link>
@@ -355,7 +355,7 @@ function SubmissionPage() {
             <button
               type="submit"
               disabled={isSubmitting || hasSubmitted}
-              className="relative flex items-center gap-2 rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white
+              className="relative flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white
                          transition-all duration-200 hover:bg-indigo-500 hover:shadow-lg hover:shadow-indigo-500/20
                          focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-950
                          disabled:opacity-60 disabled:hover:bg-indigo-600 disabled:hover:shadow-none"

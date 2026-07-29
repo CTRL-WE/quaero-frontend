@@ -48,7 +48,7 @@ function BoardEntry({ entry, caseId, onHelpfulToggled }) {
       }`}
     >
       {/* Header: submitter + credibility */}
-      <div className="flex items-center justify-between border-b border-gray-800/40 px-5 py-3">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-800/40 px-4 py-3 sm:px-5">
         <div className="flex items-center gap-2.5">
           {/* Avatar placeholder */}
           <div
@@ -84,7 +84,7 @@ function BoardEntry({ entry, caseId, onHelpfulToggled }) {
       </div>
 
       {/* Body */}
-      <div className="px-5 py-4 space-y-3">
+      <div className="px-4 py-4 space-y-3 sm:px-5">
         {/* Rationale */}
         <p className="text-sm leading-relaxed text-gray-300">
           {entry.rationale}
@@ -108,7 +108,7 @@ function BoardEntry({ entry, caseId, onHelpfulToggled }) {
       </div>
 
       {/* Footer: helpful button */}
-      <div className="flex items-center justify-end border-t border-gray-800/40 px-5 py-2.5">
+      <div className="flex items-center justify-end border-t border-gray-800/40 px-4 py-2.5 sm:px-5">
         <HelpfulButton
           isHelpful={entry.isHelpful}
           count={entry.helpfulCount}

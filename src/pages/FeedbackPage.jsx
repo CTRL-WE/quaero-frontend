@@ -45,7 +45,7 @@ function verdictLabel(value) {
 /** Investigation timeline strip */
 function TimelineStrip() {
   return (
-    <div className="flex items-center gap-0 overflow-x-auto py-1">
+    <div className="flex items-center gap-0 overflow-x-auto py-1 px-1 scrollbar-none">
       {TIMELINE_STEPS.map((step, i) => (
         <div key={step.key} className="flex items-center shrink-0">
           {/* Step dot + label */}
@@ -76,7 +76,7 @@ function StatCard({ label, value, sublabel, colourClasses }) {
       } ${colourClasses?.border ?? 'border-gray-800/60'}`}
     >
       <span
-        className={`text-2xl font-bold tabular-nums ${
+        className={`text-xl sm:text-2xl font-bold tabular-nums truncate max-w-full ${
           colourClasses?.ring ?? 'text-gray-200'
         }`}
       >
@@ -294,7 +294,7 @@ function FeedbackPage() {
           </Section>
 
           {/* ---- Stats row: Score, XP, Credibility -------------------------- */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <StatCard
               label="Reasoning score"
               value={reasoningScore ?? '—'}

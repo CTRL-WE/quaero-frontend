@@ -118,8 +118,9 @@ function EvidenceCard({ entry, onRemove, onStatusChange }) {
 
         <button
           onClick={() => onRemove(entry.id)}
-          className="shrink-0 rounded p-0.5 text-gray-700 opacity-0 transition-all
-                     group-hover:opacity-100 hover:bg-gray-800 hover:text-gray-400"
+          className="shrink-0 rounded p-0.5 text-gray-700 transition-all
+                     hover:bg-gray-800 hover:text-gray-400
+                     sm:opacity-0 sm:group-hover:opacity-100"
           aria-label={`Remove ${entry.title || 'evidence'}`}
         >
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="h-3.5 w-3.5">

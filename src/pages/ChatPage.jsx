@@ -1,25 +1,41 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import useInvestigationSession from '../hooks/useInvestigationSession';
+import useCaseBrief from '../hooks/useCaseBrief';
+import ReferencePostStrip from '../components/ReferencePostStrip';
 import ChatMessageList from '../components/ChatMessageList';
 import ChatInput from '../components/ChatInput';
-import SubmissionNudgeBanner from '../components/SubmissionNudgeBanner';
+import EvidenceLocker from '../components/EvidenceLocker';
+import InvestigationProgress from '../components/InvestigationProgress';
 
 // ---------------------------------------------------------------------------
-// ChatPage — AI-mentor Socratic investigation interface
+// ChatPage — Investigation Workspace (4-panel layout)
 //
-// Composes:
-//   • useInvestigationSession   → session lifecycle, messages, send(),
-//                                  turnCount, nudgeSubmission, isSubmitted
-//   • ChatMessageList           → renders messages + typing indicator
-//   • ChatInput                 → textarea + send button (or submitted lockout)
-//   • SubmissionNudgeBanner     → dismissible "ready to submit?" banner
+// Four simultaneously visible zones on a single screen:
+//   1. Reference Post   — collapsed top strip showing the original claim
+//   2. AI Mentor        — existing ChatMessageList + ChatInput (unchanged)
+//   3. Evidence Locker   — placeholder (Prompt 5)
+//   4. Investigation Progress — persistent progress indicator + submit CTA
 //
-// Reads caseId from the URL via useParams() (route: /chat/:caseId).
+// Layout:
+//   ┌──────────────── Reference Post Strip ──────────────────┐
+//   │                                                        │
+//   │  ┌─── AI Mentor (main) ───┐  ┌─ Evidence ─┐ ┌─ Prog ─┐│
+//   │  │ ChatMessageList        │  │  Locker     │ │ ress   ││
+//   │  │                        │  │  (P5)       │ │        ││
+//   │  │                        │  │             │ │        ││
+//   │  ├── ChatInput ───────────┤  │             │ │        ││
+//   │  └────────────────────────┘  └─────────────┘ └────────┘│
+//   └────────────────────────────────────────────────────────┘
+//
+// On mobile (< lg) the right-side panels stack below the chat.
+//
+// Design tokens (v1 §1): dark surfaces, layered grays, one accent (indigo),
+// hairline borders, consistent soft radius, sentence case.
 // ---------------------------------------------------------------------------
 function ChatPage() {
   const { caseId } = useParams();
-  const navigate = useNavigate();
 
+  // ---- Data hooks (no new API calls — reuses existing services) -----------
   const {
     messages,
     isLoading,
@@ -30,8 +46,9 @@ function ChatPage() {
     isSubmitted,
     send,
     clearError,
-    dismissNudge,
   } = useInvestigationSession(caseId);
+
+  const { brief, loading: briefLoading } = useCaseBrief(caseId);
 
   // Placeholder handler — will route to the Submission screen once it exists
   const handleSubmitInvestigation = () => {
@@ -43,82 +60,93 @@ function ChatPage() {
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
 
-      {/* ---- Header ---- */}
-      <div className="shrink-0 border-b border-gray-800 bg-gray-900/60 backdrop-blur-sm px-4 py-3 sm:px-6">
-        <div className="mx-auto max-w-3xl flex items-center justify-between">
-          <div>
-            <h1 className="text-base font-semibold text-gray-100">
-              AI Mentor Investigation
-            </h1>
-            <p className="mt-0.5 text-xs text-gray-500">
-              The AI will guide your reasoning through questions.
-            </p>
+      {/* ================================================================
+          Panel 1 — Reference Post strip (non-scrolling, top)
+          ================================================================ */}
+      <ReferencePostStrip
+        brief={brief}
+        loading={briefLoading}
+        caseId={caseId}
+      />
+
+      {/* ================================================================
+          Main workspace body — 3-column grid on lg+, stacked on mobile
+          ================================================================ */}
+      <div className="flex flex-1 overflow-hidden flex-col lg:flex-row">
+
+        {/* ==============================================================
+            Panel 2 — AI Mentor (chat)
+            The existing ChatMessageList + ChatInput, unchanged in behavior.
+            ============================================================== */}
+        <div className="flex flex-1 flex-col overflow-hidden min-w-0">
+
+          {/* Loading skeleton */}
+          {isLoading && (
+            <div className="flex flex-1 items-center justify-center">
+              <div className="flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-indigo-400 animate-pulse" />
+                <span className="h-2 w-2 rounded-full bg-indigo-400 animate-pulse [animation-delay:150ms]" />
+                <span className="h-2 w-2 rounded-full bg-indigo-400 animate-pulse [animation-delay:300ms]" />
+              </div>
+            </div>
+          )}
+
+          {/* Error banner */}
+          {error && (
+            <div className="px-4 pt-3 sm:px-5">
+              <div className="flex items-center justify-between rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-2.5 text-sm text-red-400">
+                <span>{error}</span>
+                <button
+                  onClick={clearError}
+                  className="ml-3 text-red-400/70 transition-colors hover:text-red-300"
+                  aria-label="Dismiss error"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Scrollable conversation */}
+          {!isLoading && (
+            <ChatMessageList messages={messages} isTyping={isSending} />
+          )}
+
+          {/* Input bar (or submitted-session lockout) */}
+          <ChatInput
+            onSend={send}
+            disabled={isLoading || isSending}
+            submittedMessage={
+              isSubmitted
+                ? 'This investigation has been submitted. You can review your conversation above but cannot send new messages.'
+                : null
+            }
+          />
+        </div>
+
+        {/* ==============================================================
+            Right sidebar — Evidence Locker + Investigation Progress
+            On lg+ this is a single vertical column to the right of the
+            chat. On mobile the panels stack below.
+            ============================================================== */}
+        <div className="flex shrink-0 flex-col lg:w-[280px] border-t border-gray-800/60 lg:border-t-0 lg:border-l lg:border-gray-800/60">
+
+          {/* Panel 3 — Evidence Locker (placeholder) */}
+          <div className="flex flex-1 flex-col min-h-[140px] lg:min-h-0 overflow-y-auto">
+            <EvidenceLocker />
           </div>
-          <div className="flex items-center gap-2">
-            {isSubmitted && (
-              <span className="rounded-full bg-amber-500/10 border border-amber-500/20 px-3 py-1 text-xs font-medium text-amber-400">
-                Submitted
-              </span>
-            )}
-            <span className="rounded-full bg-indigo-500/10 border border-indigo-500/20 px-3 py-1 text-xs font-medium text-indigo-400">
-              Case #{caseId}
-            </span>
+
+          {/* Panel 4 — Investigation Progress */}
+          <div className="flex flex-col shrink-0">
+            <InvestigationProgress
+              turnCount={turnCount}
+              nudgeSubmission={nudgeSubmission}
+              isSubmitted={isSubmitted}
+              onSubmit={handleSubmitInvestigation}
+            />
           </div>
         </div>
       </div>
-
-      {/* ---- Submission nudge banner ---- */}
-      {!isSubmitted && (
-        <SubmissionNudgeBanner
-          visible={nudgeSubmission}
-          onDismiss={dismissNudge}
-          onSubmit={handleSubmitInvestigation}
-          turnCount={turnCount}
-        />
-      )}
-
-      {/* ---- Loading skeleton ---- */}
-      {isLoading && (
-        <div className="flex flex-1 items-center justify-center">
-          <div className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-indigo-400 animate-pulse" />
-            <span className="h-2 w-2 rounded-full bg-indigo-400 animate-pulse [animation-delay:150ms]" />
-            <span className="h-2 w-2 rounded-full bg-indigo-400 animate-pulse [animation-delay:300ms]" />
-          </div>
-        </div>
-      )}
-
-      {/* ---- Error banner ---- */}
-      {error && (
-        <div className="mx-auto max-w-3xl px-4 pt-4 sm:px-6">
-          <div className="flex items-center justify-between rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
-            <span>{error}</span>
-            <button
-              onClick={clearError}
-              className="ml-3 text-red-400/70 transition-colors hover:text-red-300"
-              aria-label="Dismiss error"
-            >
-              ✕
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* ---- Scrollable conversation area ---- */}
-      {!isLoading && (
-        <ChatMessageList messages={messages} isTyping={isSending} />
-      )}
-
-      {/* ---- Input bar (or submitted-session lockout) ---- */}
-      <ChatInput
-        onSend={send}
-        disabled={isLoading || isSending}
-        submittedMessage={
-          isSubmitted
-            ? 'This investigation has been submitted. You can review your conversation above but cannot send new messages.'
-            : null
-        }
-      />
     </div>
   );
 }

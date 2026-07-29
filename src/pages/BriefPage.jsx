@@ -1,33 +1,10 @@
-import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { getBrief } from '../services/caseService';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import useCaseBrief from '../hooks/useCaseBrief';
 
 function BriefPage() {
   const { id: caseId } = useParams();
-  const [brief, setBrief] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    (async () => {
-      setLoading(true);
-      setNotFound(false);
-      try {
-        const data = await getBrief(caseId);
-        if (!cancelled) setBrief(data);
-      } catch {
-        if (!cancelled) setNotFound(true);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [caseId]);
+  const navigate = useNavigate();
+  const { brief, loading, notFound } = useCaseBrief(caseId);
 
   /* ---------- Loading ---------- */
   if (loading) {
@@ -107,9 +84,10 @@ function BriefPage() {
         {brief.publicEvidence}
       </p>
 
-      {/* TODO: wire to investigation flow once built */}
+      {/* Navigate to the Investigation Workspace */}
       <button
         type="button"
+        onClick={() => navigate(`/chat/${caseId}`)}
         className="mt-10 inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3
                    text-sm font-semibold text-white shadow-sm transition-all
                    hover:bg-blue-700 hover:shadow-md active:scale-[0.98]"

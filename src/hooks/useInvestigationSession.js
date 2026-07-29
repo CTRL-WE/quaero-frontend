@@ -18,6 +18,8 @@ const USE_MOCK = import.meta.env.VITE_USE_MOCK_API === 'true';
 //   • sending messages via POST /investigations/{caseId}/messages
 //   • optimistic user-message rendering
 //   • per-message retry-capable error state (never clears the conversation)
+//   • turn count + submission nudge tracking
+//   • submitted-session guard (disables further input)
 //
 // When VITE_USE_MOCK_API=true, delegates to in-memory mocks so the UI
 // works without a running backend.
@@ -29,15 +31,19 @@ const USE_MOCK = import.meta.env.VITE_USE_MOCK_API === 'true';
  *   Pass `null` to defer initialisation (call `initSession` manually).
  *
  * @returns {{
- *   messages:         Array<{ id: number|string, sender: 'AI'|'USER', text: string, timestamp: string }>,
+ *   messages:         Array<{ id: number|string, sender: 'AI'|'USER', text: string, timestamp: string, failed?: boolean }>,
  *   isLoading:        boolean,
  *   isSending:        boolean,
  *   error:            string | null,
+ *   turnCount:        number,
  *   nudgeSubmission:  boolean,
+ *   sessionStatus:    string | null,
+ *   isSubmitted:      boolean,
  *   send:             (text: string) => Promise<void>,
  *   retrySend:        (text: string) => Promise<void>,
  *   initSession:      (caseId: string|number) => Promise<void>,
  *   clearError:       () => void,
+ *   dismissNudge:     () => void,
  * }}
  */
 const useInvestigationSession = (caseId = null) => {
@@ -46,7 +52,12 @@ const useInvestigationSession = (caseId = null) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState(null);
+  const [turnCount, setTurnCount] = useState(0);
   const [nudgeSubmission, setNudgeSubmission] = useState(false);
+  const [sessionStatus, setSessionStatus] = useState(null);
+
+  // Derived — a session that has already been submitted is read-only
+  const isSubmitted = sessionStatus === 'SUBMITTED';
 
   // Track the active caseId so send() doesn't need it as a parameter
   const activeCaseId = useRef(null);
@@ -65,12 +76,19 @@ const useInvestigationSession = (caseId = null) => {
       // The real API has no separate "create session" endpoint — sessions
       // are created implicitly by the messages endpoint if none exists yet.
       const data = await getSessionStatus(id);
+
       setMessages(data.messages ?? []);
+      setTurnCount(data.turnCount ?? 0);
+      setNudgeSubmission(data.nudgeSubmission ?? false);
+      setSessionStatus(data.status ?? null);
     } catch (err) {
       // A 404 means no session exists yet — that's fine, the first
       // sendMessage call will implicitly create one.
       if (err.response?.status === 404) {
         setMessages([]);
+        setTurnCount(0);
+        setNudgeSubmission(false);
+        setSessionStatus(null);
       } else {
         console.error('[useInvestigationSession] initSession failed:', err);
         setError(err.response?.data?.message || err.message || 'Failed to load investigation session.');
@@ -93,6 +111,11 @@ const useInvestigationSession = (caseId = null) => {
       const trimmed = text.trim();
       if (!trimmed || !activeCaseId.current) return;
 
+      // Client-side guard: reject sending into a submitted session.
+      // The backend will also reject with SessionAlreadySubmittedException,
+      // but catching it here avoids a wasted round-trip.
+      if (isSubmitted) return;
+
       // -- Optimistic append of the user's message --------------------------
       const optimisticId = `optimistic-${++nextOptimisticId.current}`;
       const optimisticMsg = {
@@ -108,15 +131,20 @@ const useInvestigationSession = (caseId = null) => {
 
       try {
         if (USE_MOCK) {
-          // Mock returns { userMsg, aiMsg }
-          const { userMsg, aiMsg } = await sendMessage(activeCaseId.current, trimmed);
+          // Mock returns { userMsg, aiMsg, turnCount, nudgeSubmission }
+          const result = await sendMessage(activeCaseId.current, trimmed);
 
           setMessages((prev) => {
             // Replace the optimistic message with the "real" mock message,
             // then append the AI reply.
             const withoutOptimistic = prev.filter((m) => m.id !== optimisticId);
-            return [...withoutOptimistic, userMsg, aiMsg];
+            return [...withoutOptimistic, result.userMsg, result.aiMsg];
           });
+
+          setTurnCount(result.turnCount);
+          if (result.nudgeSubmission) {
+            setNudgeSubmission(true);
+          }
         } else {
           // Real API returns ChatMessageResponse:
           //   { aiReply, turnCount, nudgeSubmission }
@@ -137,12 +165,27 @@ const useInvestigationSession = (caseId = null) => {
             return [...updated, aiMsg];
           });
 
+          setTurnCount(data.turnCount);
           if (data.nudgeSubmission) {
             setNudgeSubmission(true);
           }
         }
       } catch (err) {
         console.error('[useInvestigationSession] send failed:', err);
+
+        // Detect SessionAlreadySubmittedException from the backend and
+        // reflect it as a submitted-session guard rather than a raw error.
+        const status = err.response?.status;
+        const errorCode = err.response?.data?.code;
+
+        if (status === 409 && errorCode === 'SESSION_ALREADY_SUBMITTED') {
+          setSessionStatus('SUBMITTED');
+          // Remove the optimistic message — it will never succeed
+          setMessages((prev) => prev.filter((m) => m.id !== optimisticId));
+          setError('This investigation has already been submitted. No further messages can be sent.');
+          setIsSending(false);
+          return;
+        }
 
         // Surface a retry-capable error on the *specific* failed message —
         // never clear the rest of the conversation (per Frontend Handbook
@@ -157,7 +200,7 @@ const useInvestigationSession = (caseId = null) => {
         setIsSending(false);
       }
     },
-    [],
+    [isSubmitted],
   );
 
   // ---- Retry a failed message ---------------------------------------------
@@ -173,6 +216,7 @@ const useInvestigationSession = (caseId = null) => {
 
   // ---- Helpers ------------------------------------------------------------
   const clearError = useCallback(() => setError(null), []);
+  const dismissNudge = useCallback(() => setNudgeSubmission(false), []);
 
   // ---- Public API ---------------------------------------------------------
   return {
@@ -180,11 +224,15 @@ const useInvestigationSession = (caseId = null) => {
     isLoading,
     isSending,
     error,
+    turnCount,
     nudgeSubmission,
+    sessionStatus,
+    isSubmitted,
     send,
     retrySend,
     initSession,
     clearError,
+    dismissNudge,
   };
 };
 

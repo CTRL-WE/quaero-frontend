@@ -3,12 +3,46 @@ import { useState, useRef } from 'react';
 /**
  * ChatInput — message composition bar with send button.
  *
- * @param {{ onSend: (text: string) => void, disabled?: boolean }} props
+ * Supports a `submittedMessage` prop: when provided, the input is fully
+ * locked out and the message is displayed instead of the textarea — used
+ * when the session status is SUBMITTED so the user gets a clear,
+ * non-interactive explanation rather than a raw API error.
+ *
+ * @param {{
+ *   onSend:           (text: string) => void,
+ *   disabled?:        boolean,
+ *   submittedMessage?: string | null,
+ * }} props
  */
-function ChatInput({ onSend, disabled = false }) {
+function ChatInput({ onSend, disabled = false, submittedMessage = null }) {
   const [value, setValue] = useState('');
   const textareaRef = useRef(null);
 
+  // ---- Submitted-session lockout ------------------------------------------
+  if (submittedMessage) {
+    return (
+      <div className="shrink-0 border-t border-gray-800 bg-gray-900/80 backdrop-blur-sm px-4 py-3 sm:px-6">
+        <div className="mx-auto flex max-w-3xl items-center gap-3 rounded-xl border border-amber-500/20 bg-amber-500/5 px-4 py-3">
+          {/* Lock icon */}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            className="h-5 w-5 shrink-0 text-amber-400"
+          >
+            <path
+              fillRule="evenodd"
+              d="M10 1a4.5 4.5 0 0 0-4.5 4.5V9H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5V5.5A4.5 4.5 0 0 0 10 1Zm3 8V5.5a3 3 0 1 0-6 0V9h6Z"
+              clipRule="evenodd"
+            />
+          </svg>
+          <p className="text-sm text-amber-300/90">{submittedMessage}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // ---- Normal input mode --------------------------------------------------
   const handleSend = () => {
     const trimmed = value.trim();
     if (!trimmed || disabled) return;
@@ -40,7 +74,7 @@ function ChatInput({ onSend, disabled = false }) {
   const canSend = value.trim().length > 0 && !disabled;
 
   return (
-    <div className="border-t border-gray-800 bg-gray-900/80 backdrop-blur-sm px-4 py-3 sm:px-6">
+    <div className="shrink-0 border-t border-gray-800 bg-gray-900/80 backdrop-blur-sm px-4 py-3 sm:px-6">
       <div className="mx-auto flex max-w-3xl items-end gap-3">
         <textarea
           ref={textareaRef}

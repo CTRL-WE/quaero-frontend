@@ -20,6 +20,9 @@ const MOCK_AI_RESPONSES = [
 
 let mockIdCounter = 200;
 
+// Per-case mock turn counter so the mock can simulate nudgeSubmission
+const mockTurnCounts = {};
+
 const randomAIResponse = () =>
   MOCK_AI_RESPONSES[Math.floor(Math.random() * MOCK_AI_RESPONSES.length)];
 
@@ -32,7 +35,9 @@ const mockGetSessionStatus = async (caseId) =>
     setTimeout(() => {
       resolve({
         caseId,
-        status: 'active',
+        status: 'ACTIVE',
+        turnCount: mockTurnCounts[caseId] ?? 2,
+        nudgeSubmission: false,
         messages: [
           {
             id: 1,
@@ -59,6 +64,9 @@ const mockGetSessionStatus = async (caseId) =>
 
 const mockSendMessage = async (caseId, text) =>
   new Promise((resolve) => {
+    const currentTurn = (mockTurnCounts[caseId] ?? 2) + 1;
+    mockTurnCounts[caseId] = currentTurn;
+
     const userMsg = {
       id: ++mockIdCounter,
       sender: 'USER',
@@ -73,7 +81,17 @@ const mockSendMessage = async (caseId, text) =>
         text: randomAIResponse(),
         timestamp: new Date().toISOString(),
       };
-      resolve({ userMsg, aiMsg });
+
+      // Simulate the backend's nudgeSubmission flag — triggers around
+      // turn 5 (the backend decides; this mock just approximates it).
+      const nudgeSubmission = currentTurn >= 5;
+
+      resolve({
+        userMsg,
+        aiMsg,
+        turnCount: currentTurn,
+        nudgeSubmission,
+      });
     }, 800 + Math.random() * 1200);
   });
 
@@ -81,7 +99,8 @@ const mockSendMessage = async (caseId, text) =>
 // Real API implementations
 //
 // Contract (DS v1.0 / API Blueprint §5):
-//   GET  /investigations/{caseId}/status   → { caseId, status, messages[] }
+//   GET  /investigations/{caseId}/status   → { caseId, status, messages[],
+//                                              turnCount, nudgeSubmission }
 //   POST /investigations/{caseId}/messages  → ChatMessageResponse
 //        Body: { caseId, text }
 //        Resp: { aiReply, turnCount, nudgeSubmission }
@@ -109,17 +128,24 @@ const realSendMessage = async (caseId, text) => {
 
 /**
  * Check whether an investigation session already exists for a case.
- * Returns the session status and any prior conversation history.
+ * Returns the session status, conversation history, turn count, and
+ * nudgeSubmission flag.
  *
  * @param {string|number} caseId - The case to check
- * @returns {Promise<{ caseId: string, status: string, messages: object[] }>}
+ * @returns {Promise<{
+ *   caseId: string,
+ *   status: string,
+ *   turnCount: number,
+ *   nudgeSubmission: boolean,
+ *   messages: object[]
+ * }>}
  */
 export const getSessionStatus = USE_MOCK ? mockGetSessionStatus : realGetSessionStatus;
 
 /**
  * Send a user message within an investigation and receive an AI reply.
  *
- * Mock mode returns { userMsg, aiMsg }.
+ * Mock mode returns { userMsg, aiMsg, turnCount, nudgeSubmission }.
  * Real mode returns the raw ChatMessageResponse from the API:
  *   { aiReply, turnCount, nudgeSubmission }
  *

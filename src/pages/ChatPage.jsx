@@ -1,29 +1,43 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import useInvestigationSession from '../hooks/useInvestigationSession';
 import ChatMessageList from '../components/ChatMessageList';
 import ChatInput from '../components/ChatInput';
+import SubmissionNudgeBanner from '../components/SubmissionNudgeBanner';
 
 // ---------------------------------------------------------------------------
 // ChatPage — AI-mentor Socratic investigation interface
 //
 // Composes:
-//   • useInvestigationSession  → session lifecycle, messages, send()
-//   • ChatMessageList          → renders messages + typing indicator
-//   • ChatInput                → textarea + send button
+//   • useInvestigationSession   → session lifecycle, messages, send(),
+//                                  turnCount, nudgeSubmission, isSubmitted
+//   • ChatMessageList           → renders messages + typing indicator
+//   • ChatInput                 → textarea + send button (or submitted lockout)
+//   • SubmissionNudgeBanner     → dismissible "ready to submit?" banner
 //
 // Reads caseId from the URL via useParams() (route: /chat/:caseId).
 // ---------------------------------------------------------------------------
 function ChatPage() {
   const { caseId } = useParams();
+  const navigate = useNavigate();
 
   const {
     messages,
     isLoading,
     isSending,
     error,
+    turnCount,
+    nudgeSubmission,
+    isSubmitted,
     send,
     clearError,
+    dismissNudge,
   } = useInvestigationSession(caseId);
+
+  // Placeholder handler — will route to the Submission screen once it exists
+  const handleSubmitInvestigation = () => {
+    // TODO: navigate(`/cases/${caseId}/submit`) once the Submission page is built
+    console.log(`[ChatPage] User wants to submit investigation for case ${caseId}`);
+  };
 
   // -----------------------------------------------------------------------
   return (
@@ -40,11 +54,28 @@ function ChatPage() {
               The AI will guide your reasoning through questions.
             </p>
           </div>
-          <span className="rounded-full bg-indigo-500/10 border border-indigo-500/20 px-3 py-1 text-xs font-medium text-indigo-400">
-            Case #{caseId}
-          </span>
+          <div className="flex items-center gap-2">
+            {isSubmitted && (
+              <span className="rounded-full bg-amber-500/10 border border-amber-500/20 px-3 py-1 text-xs font-medium text-amber-400">
+                Submitted
+              </span>
+            )}
+            <span className="rounded-full bg-indigo-500/10 border border-indigo-500/20 px-3 py-1 text-xs font-medium text-indigo-400">
+              Case #{caseId}
+            </span>
+          </div>
         </div>
       </div>
+
+      {/* ---- Submission nudge banner ---- */}
+      {!isSubmitted && (
+        <SubmissionNudgeBanner
+          visible={nudgeSubmission}
+          onDismiss={dismissNudge}
+          onSubmit={handleSubmitInvestigation}
+          turnCount={turnCount}
+        />
+      )}
 
       {/* ---- Loading skeleton ---- */}
       {isLoading && (
@@ -78,10 +109,15 @@ function ChatPage() {
         <ChatMessageList messages={messages} isTyping={isSending} />
       )}
 
-      {/* ---- Input bar ---- */}
+      {/* ---- Input bar (or submitted-session lockout) ---- */}
       <ChatInput
         onSend={send}
         disabled={isLoading || isSending}
+        submittedMessage={
+          isSubmitted
+            ? 'This investigation has been submitted. You can review your conversation above but cannot send new messages.'
+            : null
+        }
       />
     </div>
   );

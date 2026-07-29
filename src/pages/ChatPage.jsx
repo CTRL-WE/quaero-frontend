@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import useInvestigationSession from '../hooks/useInvestigationSession';
 import useCaseBrief from '../hooks/useCaseBrief';
 import useEvidenceLocker from '../hooks/useEvidenceLocker';
@@ -62,10 +62,11 @@ function ChatPage() {
     serialize: serializeEvidence,    // eslint-disable-line no-unused-vars
   } = useEvidenceLocker(caseId);
 
-  // Placeholder handler — will route to the Submission screen once it exists
+  const navigate = useNavigate();
+
+  // Navigate to the Submission screen (Screen 6)
   const handleSubmitInvestigation = () => {
-    // TODO: navigate(`/cases/${caseId}/submit`) once the Submission page is built
-    console.log(`[ChatPage] User wants to submit investigation for case ${caseId}`);
+    navigate(`/cases/${caseId}/submit`);
   };
 
   // -----------------------------------------------------------------------

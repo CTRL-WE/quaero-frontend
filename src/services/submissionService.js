@@ -40,21 +40,50 @@ const mockSubmit = async (caseId, { verdict, rationale, evidenceLinks }) => {
         submissionId: `sub-${Date.now()}`,
         caseId,
         verdict,
-        score: Math.floor(60 + Math.random() * 35), // 60-94
-        grade: 'B+',
-        feedback:
+
+        // ---- Scoring & progression ----
+        reasoningScore: Math.floor(60 + Math.random() * 35), // 60-94
+        xpEarned: Math.floor(100 + Math.random() * 150),     // 100-249
+        updatedCredibility: 'Rising Investigator',
+
+        // ---- Ground truth ----
+        groundTruth:
+          'The claim is substantiated by publicly available records. ' +
+          'Independent audits and regulatory filings confirm the core ' +
+          'allegations, although the exact financial figure cited has a ' +
+          '±12 % margin depending on the accounting methodology used.',
+
+        // ---- AI evaluator's feedback (must be visually prominent) ----
+        explanation:
           'Your investigation demonstrated solid critical thinking. ' +
           'You correctly identified primary sources and evaluated their ' +
-          'reliability before drawing conclusions. Consider broadening ' +
-          'your evidence base with cross-referenced data in future cases.',
-        strengths: [
-          'Systematic source verification',
-          'Clear reasoning chain from evidence to conclusion',
+          'reliability before drawing conclusions. Your reasoning chain ' +
+          'was logical and well-structured, moving from source identification ' +
+          'to evidence evaluation to conclusion. One area for growth: you ' +
+          'could strengthen your analysis by considering alternative ' +
+          'interpretations of the financial data and quantifying your ' +
+          'confidence level for each piece of evidence.',
+
+        // ---- References ----
+        trustedReferences: [
+          { title: 'CMS Medicare Billing Compliance Guide', url: 'https://www.cms.gov/billing-compliance' },
+          { title: 'Reuters Fact Check — Hospital Billing Practices', url: 'https://www.reuters.com/fact-check/hospital-billing' },
+          { title: 'GAO Report on Healthcare Fraud Indicators', url: 'https://www.gao.gov/healthcare-fraud-2024' },
         ],
-        improvements: [
-          'Explore alternative interpretations of the evidence',
-          'Quantify confidence levels for each piece of evidence',
-        ],
+
+        // ---- Learning summary (must be visually prominent) ----
+        learningSummary:
+          'This investigation reinforced the importance of cross-referencing ' +
+          'official records with independent sources. When evaluating financial ' +
+          'claims, always verify the methodology behind reported figures — a ' +
+          'single number can tell very different stories depending on how it ' +
+          'was calculated. In future investigations, try to identify at least ' +
+          'two independent data points that corroborate each key finding.',
+
+        // ---- Degraded grading (null = normal, object = degraded) ----
+        // Uncomment the next line to test the degraded UI:
+        // degradedGrading: { reason: 'The AI evaluator used a simplified rubric due to high demand.' },
+        degradedGrading: null,
       });
     }, delay);
   });
@@ -67,8 +96,10 @@ const mockSubmit = async (caseId, { verdict, rationale, evidenceLinks }) => {
 //   POST /cases/{caseId}/submissions
 //   Body:  SubmissionRequest  { verdict, rationale, evidenceLinks }
 //   Resp:  SubmissionFeedbackResponse
-//          { submissionId, caseId, verdict, score, grade, feedback,
-//            strengths[], improvements[] }
+//          { submissionId, caseId, verdict, reasoningScore, xpEarned,
+//            updatedCredibility, groundTruth, explanation,
+//            trustedReferences[{title,url}], learningSummary,
+//            degradedGrading?: {reason} }
 //
 // 409  → SessionAlreadySubmittedException (code: SESSION_ALREADY_SUBMITTED)
 // ---------------------------------------------------------------------------

@@ -9,6 +9,7 @@ import BriefPage from '../pages/BriefPage';
 import ProfilePage from '../pages/ProfilePage';
 import ChatPage from '../pages/ChatPage';
 import SubmissionPage from '../pages/SubmissionPage';
+import FeedbackPage from '../pages/FeedbackPage';
 
 // ---------------------------------------------------------------------------
 // Placeholder pages — swap these out as real pages are built
@@ -60,6 +61,10 @@ const router = createBrowserRouter([
           {
             path: '/cases/:id/submit',
             element: <SubmissionPage />,
+          },
+          {
+            path: '/cases/:id/feedback',
+            element: <FeedbackPage />,
           },
         ],
       },

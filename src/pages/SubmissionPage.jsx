@@ -95,11 +95,16 @@ function SubmissionPage() {
     setSubmitError(null);
 
     try {
-      await submitInvestigation(caseId, payload);
+      const feedbackResponse = await submitInvestigation(caseId, payload);
       setHasSubmitted(true);
 
-      // Navigate back to the workspace — it will show the submitted state
-      navigate(`/chat/${caseId}`, { replace: true });
+      // Navigate to the Feedback screen with the grading response as state.
+      // There is no GET endpoint to re-fetch this — route state is the
+      // only delivery mechanism (Frontend Handbook Screen 7).
+      navigate(`/cases/${caseId}/feedback`, {
+        state: { feedback: feedbackResponse },
+        replace: true,
+      });
     } catch (err) {
       const status = err.response?.status;
       const errorCode = err.response?.data?.code;

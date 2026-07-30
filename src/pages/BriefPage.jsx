@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getBrief } from '../services/caseService';
 import PlatformPost from '../components/PlatformPost';
 
@@ -96,6 +96,7 @@ const MOCK_COMMENTS = [
 
 function BriefPage() {
   const { id: caseId } = useParams();
+  const navigate = useNavigate();
   const [brief, setBrief] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -296,6 +297,7 @@ function BriefPage() {
       {/* ── Start Investigation button ── */}
       <button
         type="button"
+        onClick={() => navigate(`/cases/${caseId}/investigate`)}
         className="mt-6 inline-flex w-full items-center justify-center gap-2.5
                    rounded-base bg-accent px-6 py-3.5
                    text-sm font-medium text-white shadow-sm

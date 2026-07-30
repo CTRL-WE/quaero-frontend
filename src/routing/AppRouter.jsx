@@ -6,6 +6,9 @@ import SignupPage from '../pages/SignupPage';
 import LoginPage from '../pages/LoginPage';
 import FeedPage from '../pages/FeedPage';
 import BriefPage from '../pages/BriefPage';
+import ChatPage from '../pages/ChatPage';
+import SubmissionPage from '../pages/SubmissionPage';
+import FeedbackPage from '../pages/FeedbackPage';
 import ProfilePage from '../pages/ProfilePage';
 
 // ---------------------------------------------------------------------------
@@ -46,6 +49,18 @@ const router = createBrowserRouter([
           {
             path: '/cases/:id/brief',
             element: <BriefPage />,
+          },
+          {
+            path: '/cases/:id/investigate',
+            element: <ChatPage />,
+          },
+          {
+            path: '/submit',
+            element: <SubmissionPage />,
+          },
+          {
+            path: '/feedback',
+            element: <FeedbackPage />,
           },
           {
             path: '/profile',

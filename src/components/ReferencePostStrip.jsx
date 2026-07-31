@@ -44,7 +44,7 @@ function ReferencePostStrip({ platform, mediaUrl, mediaType, caption }) {
 
       {/* Subtle "Reference" label */}
       <span
-        className="shrink-0 rounded-full bg-white/5 px-2 py-0.5
+        className="hidden sm:inline-flex shrink-0 rounded-full bg-white/5 px-2 py-0.5
                    text-[10px] font-medium uppercase tracking-wider text-text-muted
                    ring-1 ring-white/6"
       >

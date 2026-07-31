@@ -50,6 +50,29 @@ function Navbar() {
           <span className="hidden sm:inline">Profile</span>
         </Link>
 
+        {/* Leaderboard — icon-only on mobile, icon+text on sm+ */}
+        <Link
+          to="/leaderboard"
+          className="inline-flex items-center justify-center gap-1.5 min-h-[44px] min-w-[44px]
+                     text-sm font-medium text-gray-400 transition-colors hover:text-white"
+          aria-label="Leaderboard"
+        >
+          <svg
+            className="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={2}
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-4.5A3.375 3.375 0 0012.75 11h-.5A3.375 3.375 0 009 14.25v4.5m7.5 0h-6M6 9H4.5a2.25 2.25 0 01-2.25-2.25v0A2.25 2.25 0 014.5 4.5H6v4.5zm12 0h1.5a2.25 2.25 0 002.25-2.25v0A2.25 2.25 0 0019.5 4.5H18v4.5zM6 4.5h12V9a6 6 0 01-12 0V4.5z"
+            />
+          </svg>
+          <span className="hidden sm:inline">Leaderboard</span>
+        </Link>
+
         {/* Logout — icon-only on mobile, icon+text on sm+ */}
         <button
           type="button"

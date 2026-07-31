@@ -60,7 +60,7 @@ function RankBadge({ rankTier }) {
                  text-xs font-bold tracking-wide ring-1
                  ${style.bg} ${style.text} ${style.ring}`}
       aria-label={`Rank: ${tier.name}`}
-      role="img"
+      role="group"
     >
       <IconComponent className={`h-3.5 w-3.5 ${style.iconColor}`} aria-hidden="true" />
       {tier.name}

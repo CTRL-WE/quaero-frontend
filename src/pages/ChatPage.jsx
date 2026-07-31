@@ -167,7 +167,7 @@ function ChatPage() {
           {/* Chat input */}
           <div className="shrink-0 border-t border-border-hairline bg-surface-card/60
                           px-4 py-3 backdrop-blur-sm">
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -196,11 +196,12 @@ function ChatPage() {
                 <button
                   type="button"
                   onClick={handleSubmitFindings}
-                  className="shrink-0 inline-flex items-center gap-1.5 rounded-lg
-                             bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white
-                             transition-colors duration-150
-                             hover:bg-emerald-500 active:scale-[0.97]
-                             animate-evidence-enter"
+                  className="w-full sm:w-auto shrink-0 inline-flex items-center
+                              justify-center gap-1.5 rounded-lg
+                              bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white
+                              transition-colors duration-150
+                              hover:bg-emerald-500 active:scale-[0.97]
+                              animate-evidence-enter"
                 >
                   <Send size={14} strokeWidth={2.5} />
                   Submit

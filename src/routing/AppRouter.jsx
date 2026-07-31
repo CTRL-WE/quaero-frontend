@@ -10,6 +10,7 @@ import ChatPage from '../pages/ChatPage';
 import SubmissionPage from '../pages/SubmissionPage';
 import FeedbackPage from '../pages/FeedbackPage';
 import ProfilePage from '../pages/ProfilePage';
+import LeaderboardPage from '../pages/LeaderboardPage';
 
 // ---------------------------------------------------------------------------
 // Placeholder pages — swap these out as real pages are built
@@ -65,6 +66,10 @@ const router = createBrowserRouter([
           {
             path: '/profile',
             element: <ProfilePage />,
+          },
+          {
+            path: '/leaderboard',
+            element: <LeaderboardPage />,
           },
         ],
       },

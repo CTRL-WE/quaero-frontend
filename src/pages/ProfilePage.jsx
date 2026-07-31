@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
+import { Info } from 'lucide-react';
 import { getProfile } from '../services/profileService';
-import RankBadge from '../components/RankBadge';
+import ReputationCard from '../components/ReputationCard';
 
 /* ── Icons for reserved sections ─────────────────────────────────── */
 
@@ -162,7 +163,15 @@ function ProfilePage() {
   }
 
   /* ---------- Profile card ---------- */
-  const { username, totalXp, credibilityScore, rank } = profile ?? {};
+  const {
+    username,
+    totalXp,
+    credibility,
+    rankTier,
+    leaderboardPosition,
+    completedInvestigations,
+    successfulSubmissions,
+  } = profile ?? {};
 
   return (
     <section className="flex flex-1 items-start justify-center px-4 py-6 sm:py-12 sm:px-6">
@@ -182,35 +191,59 @@ function ProfilePage() {
           <h1 className="text-xl font-bold tracking-tight text-gray-100 truncate max-w-full">
             {username ?? 'Unknown'}
           </h1>
-
-          <RankBadge rank={rank ?? 'Unranked'} />
         </div>
 
-        {/* Stats */}
-        <div className="mt-8 grid grid-cols-2 gap-4">
-          {/* Total XP */}
+        {/* Reputation card (rank badge + XP progress + credibility + leaderboard link) */}
+        <div className="mt-6">
+          <ReputationCard
+            xp={totalXp}
+            credibility={credibility}
+            rankTier={rankTier}
+            leaderboardPosition={leaderboardPosition}
+          />
+        </div>
+
+        {/* Stat counters */}
+        <div className="mt-4 grid grid-cols-2 gap-4">
+          {/* Completed Investigations */}
           <div
             className="flex flex-col items-center rounded-xl border border-gray-800
                         bg-gray-950 px-2 sm:px-4 py-5"
           >
             <span className="text-2xl font-bold text-gray-100">
-              {totalXp ?? 0}
+              {completedInvestigations ?? 0}
             </span>
             <span className="mt-1 text-xs font-medium uppercase tracking-wider text-gray-500">
-              Total XP
+              Investigations
             </span>
           </div>
 
-          {/* Credibility Score */}
+          {/* Successful Submissions */}
           <div
             className="flex flex-col items-center rounded-xl border border-gray-800
                         bg-gray-950 px-2 sm:px-4 py-5"
           >
             <span className="text-2xl font-bold text-gray-100">
-              {credibilityScore ?? 0}
+              {successfulSubmissions ?? 0}
             </span>
-            <span className="mt-1 text-xs font-medium uppercase tracking-wider text-gray-500">
-              Credibility
+            <span className="mt-1.5 flex items-center gap-1 text-xs font-medium uppercase tracking-wider text-gray-500">
+              Successful
+              <span
+                className="relative group"
+                aria-label="Reasoning score of 70 or above"
+              >
+                <Info className="h-3 w-3 text-gray-600 cursor-help" aria-hidden="true" />
+                <span
+                  className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5
+                             whitespace-nowrap rounded-md bg-gray-800 px-2.5 py-1 text-[11px]
+                             font-normal normal-case tracking-normal text-gray-300 opacity-0
+                             shadow-lg ring-1 ring-gray-700/50 transition-opacity
+                             group-hover:opacity-100"
+                  role="tooltip"
+                >
+                  Reasoning score of 70 or above
+                </span>
+              </span>
             </span>
           </div>
         </div>

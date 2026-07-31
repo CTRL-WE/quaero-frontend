@@ -58,11 +58,6 @@ function XPProgressCard({ totalXp }) {
   return (
     <div
       className="rounded-base border border-border-hairline bg-surface-card/80 px-4 py-3"
-      role="progressbar"
-      aria-label={ariaLabel}
-      aria-valuenow={percentToNext}
-      aria-valuemin={0}
-      aria-valuemax={100}
     >
       {/* Label row */}
       <div className="mb-2 flex items-baseline justify-between text-xs">
@@ -95,7 +90,14 @@ function XPProgressCard({ totalXp }) {
       </div>
 
       {/* Progress track */}
-      <div className="h-2 w-full overflow-hidden rounded-full bg-surface-overlay">
+      <div
+        className="h-2 w-full overflow-hidden rounded-full bg-surface-overlay"
+        role="progressbar"
+        aria-label={ariaLabel}
+        aria-valuenow={percentToNext}
+        aria-valuemin={0}
+        aria-valuemax={100}
+      >
         <div
           className="h-full rounded-full transition-all duration-500 ease-out"
           style={{

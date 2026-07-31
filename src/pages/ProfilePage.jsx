@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Info } from 'lucide-react';
 import { getProfile } from '../services/profileService';
+import { getRankTier } from '../utils/rankTiers';
 import ReputationCard from '../components/ReputationCard';
 
 /* ── Icons for reserved sections ─────────────────────────────────── */
@@ -167,11 +168,15 @@ function ProfilePage() {
     username,
     totalXp,
     credibility,
-    rankTier,
+    // rankTier is intentionally NOT read from the profile response —
+    // derive it from totalXp so the badge and XP progress bar always
+    // agree on tier boundaries (single source of truth via rankTiers.js).
     leaderboardPosition,
     completedInvestigations,
     successfulSubmissions,
   } = profile ?? {};
+
+  const rankTier = totalXp !== undefined ? getRankTier(totalXp) : undefined;
 
   return (
     <section className="flex flex-1 items-start justify-center px-4 py-6 sm:py-12 sm:px-6">

@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Scale, FlaskConical } from 'lucide-react';
 import { submit } from '../services/submissionService';
+import { getProfile } from '../services/profileService';
+import { getRankTier } from '../utils/rankTiers';
 
 /**
  * SubmissionPage — final step where the investigator reviews their evidence,
@@ -83,8 +85,30 @@ function SubmissionPage() {
     try {
       const result = await submit(caseId, verdict, rationale.trim(), evidenceLinks.trim());
 
+      // ── Rank-tier diff for the feedback page ──
+      // No AuthContext caches totalXp today, so we read the last-known
+      // value from profileService.  If that call fails we fall back to 0
+      // so the feedback route always receives valid tier objects.
+      let currentTotalXp = 0;
+      try {
+        const profile = await getProfile();
+        currentTotalXp = profile.totalXp ?? 0;
+      } catch {
+        // Silently fall back — rank comparison is cosmetic, not critical.
+      }
+
+      const previousRank = getRankTier(currentTotalXp);
+      const newRank = getRankTier(currentTotalXp + result.xpEarned);
+
       navigate('/feedback', {
-        state: result,
+        state: {
+          ...result,
+          caseId,
+          xpEarned: result.xpEarned,
+          updatedCredibility: result.updatedCredibility,
+          previousRank,
+          newRank,
+        },
         replace: true,
       });
     } catch (err) {

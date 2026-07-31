@@ -8,6 +8,7 @@ import {
   ArrowRight,
   Home,
 } from 'lucide-react';
+import RankUpBanner from '../components/RankUpBanner';
 
 /**
  * FeedbackPage — post-submission reveal screen.
@@ -100,7 +101,21 @@ function FeedbackPage() {
     explanation,
     trustedReferences = [],
     learningSummary,
+    previousRank,
+    newRank,
   } = data;
+
+  // DEBUG — remove after verifying rank-up logic in browser console
+  console.log('[DEBUG RankUp]', {
+    previousRank,
+    newRank,
+    willShowBanner:
+      !!(previousRank && newRank && previousRank.name !== newRank.name),
+  });
+
+  // Show the rank-up banner only when the user actually crossed a tier boundary
+  const didRankUp =
+    previousRank && newRank && previousRank.name !== newRank.name;
 
   return (
     <article className="mx-auto w-full max-w-2xl px-4 py-6 sm:px-6 sm:py-10 space-y-8">
@@ -160,6 +175,13 @@ function FeedbackPage() {
           </div>
         </div>
       </section>
+
+      {/* ═══════════════════════════════════════════════════════════════
+          Rank-up celebration (shown only when tier boundary crossed)
+          ═══════════════════════════════════════════════════════════ */}
+      {didRankUp && (
+        <RankUpBanner previousTier={previousRank} newTier={newRank} />
+      )}
 
       {/* ═══════════════════════════════════════════════════════════════
           Ground Truth reveal — the core "reasoning over correctness" moment

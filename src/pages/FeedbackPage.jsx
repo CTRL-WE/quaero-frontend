@@ -253,7 +253,7 @@ function FeedbackPage() {
       <div className="flex flex-col gap-3 sm:flex-row">
         <button
           type="button"
-          onClick={() => navigate('/board')}
+          onClick={() => navigate(`/cases/${data?.caseId ?? 'unknown'}/board`)}
           className="flex-1 inline-flex items-center justify-center gap-2
                      rounded-base bg-accent px-5 py-3
                      text-sm font-medium text-white

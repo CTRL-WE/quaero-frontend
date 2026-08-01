@@ -3,6 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Users, ExternalLink, ShieldCheck } from 'lucide-react';
 import { getBoard, toggleHelpful } from '../services/boardService';
 import HelpfulButton from '../components/HelpfulButton';
+import RankBadge from '../components/RankBadge';
+import { getRankTier } from '../utils/rankTiers';
 
 /**
  * BoardPage — displays all board submissions for a case.
@@ -313,9 +315,12 @@ function BoardPage() {
                     {vs.label}
                   </span>
 
-                  {/* Credibility — pushed right */}
-                  <span className="ml-auto text-xs text-text-muted" title="Submitter credibility">
-                    {entry.submitterCredibility.toFixed(1)}% cred
+                  {/* Rank badge + credibility — pushed right */}
+                  <span className="ml-auto flex items-center gap-2">
+                    <RankBadge rankTier={getRankTier(entry.submitterCredibility)} />
+                    <span className="text-xs text-text-muted" title="Submitter credibility">
+                      {entry.submitterCredibility.toFixed(1)}% cred
+                    </span>
                   </span>
                 </div>
 

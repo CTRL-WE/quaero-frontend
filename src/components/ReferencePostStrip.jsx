@@ -16,18 +16,18 @@ import PlatformPost from './PlatformPost';
 function ReferencePostStrip({ platform, mediaUrl, mediaType, caption }) {
   return (
     <div
-      className="flex items-center gap-3 rounded-base border border-border-hairline
-                 bg-surface-card/80 px-3 py-2 backdrop-blur-sm
-                 transition-colors duration-200 hover:border-white/10"
+      className="flex items-center gap-3 rounded-lg border-[3px] border-comic-ink
+                 bg-comic-paper px-3 py-2
+                 transition-colors duration-200 hover:bg-comic-yellow/10"
     >
       {/* Pinned-reference indicator */}
       <span className="flex h-5 w-5 shrink-0 items-center justify-center
-                       text-text-muted">
+                       text-comic-red">
         <Pin size={13} strokeWidth={2} className="rotate-45" />
       </span>
 
       {/* Compact thumbnail — constrained so PlatformPost stays tiny */}
-      <div className="h-10 w-14 shrink-0 overflow-hidden rounded-md">
+      <div className="h-10 w-14 shrink-0 overflow-hidden rounded border-2 border-comic-ink/20">
         <PlatformPost
           platform={platform}
           mediaUrl={mediaUrl}
@@ -38,20 +38,21 @@ function ReferencePostStrip({ platform, mediaUrl, mediaType, caption }) {
       </div>
 
       {/* One-line caption */}
-      <p className="min-w-0 flex-1 truncate text-xs leading-snug text-text-secondary">
+      <p className="min-w-0 flex-1 truncate text-xs leading-snug font-semibold text-comic-ink/70">
         {caption}
       </p>
 
-      {/* Subtle "Reference" label */}
+      {/* "EXHIBIT A" label */}
       <span
-        className="hidden sm:inline-flex shrink-0 rounded-full bg-white/5 px-2 py-0.5
-                   text-[10px] font-medium uppercase tracking-wider text-text-muted
-                   ring-1 ring-white/6"
+        className="hidden sm:inline-flex shrink-0 rounded border-2 border-comic-ink/20 
+                   bg-comic-yellow/30 px-2 py-0.5
+                   text-[10px] font-bold uppercase tracking-wider text-comic-ink/60"
       >
-        Reference
+        Exhibit A
       </span>
     </div>
   );
 }
 
 export default ReferencePostStrip;
+

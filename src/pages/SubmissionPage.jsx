@@ -4,6 +4,7 @@ import { ArrowLeft, Scale, FlaskConical } from 'lucide-react';
 import { submit } from '../services/submissionService';
 import { getProfile } from '../services/profileService';
 import { getRankTier } from '../utils/rankTiers';
+import { ComicButton, DetectiveMascot } from '../components/comic';
 
 /**
  * SubmissionPage — final step where the investigator reviews their evidence,
@@ -21,33 +22,37 @@ const VERDICTS = [
     value: 'TRUE',
     label: 'True',
     description: 'The claim is accurate and well-supported',
-    ring: 'ring-emerald-500/30',
-    checked: 'border-emerald-500 bg-emerald-500/10 ring-emerald-500/30',
-    dot: 'bg-emerald-500',
+    bg: 'bg-comic-green',
+    selectedBg: 'bg-comic-green/15',
+    borderColor: 'border-comic-green',
+    dotColor: 'bg-comic-green',
   },
   {
     value: 'FALSE',
     label: 'False',
     description: 'The claim is inaccurate or fabricated',
-    ring: 'ring-red-500/30',
-    checked: 'border-red-500 bg-red-500/10 ring-red-500/30',
-    dot: 'bg-red-500',
+    bg: 'bg-comic-red',
+    selectedBg: 'bg-comic-red/15',
+    borderColor: 'border-comic-red',
+    dotColor: 'bg-comic-red',
   },
   {
     value: 'MISLEADING',
     label: 'Misleading',
     description: 'Partially true but presented deceptively',
-    ring: 'ring-amber-500/30',
-    checked: 'border-amber-500 bg-amber-500/10 ring-amber-500/30',
-    dot: 'bg-amber-500',
+    bg: 'bg-comic-yellow',
+    selectedBg: 'bg-comic-yellow/15',
+    borderColor: 'border-comic-yellow',
+    dotColor: 'bg-comic-yellow',
   },
   {
     value: 'UNVERIFIED',
     label: 'Unverified',
     description: 'Insufficient evidence to determine',
-    ring: 'ring-gray-500/30',
-    checked: 'border-gray-400 bg-gray-500/10 ring-gray-500/30',
-    dot: 'bg-gray-400',
+    bg: 'bg-comic-ink/30',
+    selectedBg: 'bg-comic-ink/8',
+    borderColor: 'border-comic-ink/40',
+    dotColor: 'bg-comic-ink/40',
   },
 ];
 
@@ -126,15 +131,12 @@ function SubmissionPage() {
   /* ── Loading overlay ── */
   if (isSubmitting) {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-4 p-10">
-        <div className="flex h-14 w-14 items-center justify-center rounded-full
-                        bg-accent-muted animate-pulse">
-          <FlaskConical size={24} strokeWidth={1.8} className="text-accent" />
-        </div>
-        <p className="text-sm font-medium text-text-primary">
+      <div className="bg-halftone flex flex-1 flex-col items-center justify-center gap-4 p-10">
+        <DetectiveMascot size={64} />
+        <p className="text-sm font-bold text-comic-ink">
           Evaluating your reasoning…
         </p>
-        <p className="text-xs text-text-muted">
+        <p className="text-xs text-comic-ink/50 font-semibold">
           This may take a few seconds.
         </p>
       </div>
@@ -143,181 +145,187 @@ function SubmissionPage() {
 
   /* ── Form ── */
   return (
-    <article className="mx-auto w-full max-w-xl px-4 py-6 sm:px-6 sm:py-10">
-      {/* Back link */}
-      <button
-        type="button"
-        onClick={() => navigate(-1)}
-        className="mb-6 inline-flex items-center gap-1.5 text-sm text-text-muted
-                   transition-colors hover:text-text-primary"
-      >
-        <ArrowLeft size={16} strokeWidth={2} />
-        Back to Investigation
-      </button>
+    <article className="bg-halftone min-h-full">
+      <div className="mx-auto w-full max-w-xl px-4 py-6 sm:px-6 sm:py-10">
+        {/* Back link */}
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          className="mb-6 inline-flex items-center gap-1.5 text-sm font-bold
+                     text-comic-ink/50 transition-colors hover:text-comic-ink"
+        >
+          <ArrowLeft size={16} strokeWidth={2} />
+          Back to Investigation
+        </button>
 
-      {/* Header */}
-      <div className="mb-8 flex items-start gap-3">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center
-                         rounded-base bg-accent-muted text-accent">
-          <Scale size={20} strokeWidth={1.8} />
-        </span>
-        <div>
-          <h1 className="text-xl font-medium text-text-primary">
-            Submit Your Findings
-          </h1>
-          <p className="mt-0.5 text-sm text-text-secondary">
-            Present your verdict and the reasoning behind it.
-          </p>
-        </div>
-      </div>
-
-      {/* Error banner — retry-capable */}
-      {error && (
-        <div className="mb-6 flex items-start gap-3 rounded-base border border-red-500/20
-                        bg-red-500/8 px-4 py-3 animate-evidence-enter">
-          <span className="mt-0.5 text-red-400 shrink-0">
-            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                 strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10" />
-              <path d="M12 8v4m0 4h.01" />
-            </svg>
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="text-sm text-red-400">{error}</p>
-            <p className="mt-1 text-xs text-text-muted">
-              Your rationale and evidence have been preserved — just hit submit again.
+        {/* Header */}
+        <div className="mb-8 flex items-start gap-3">
+          <DetectiveMascot size={44} />
+          <div>
+            <h1 className="font-display text-xl text-comic-ink">
+              Submit Your Findings
+            </h1>
+            <p className="mt-0.5 text-sm text-comic-ink/60 font-semibold">
+              Present your verdict and the reasoning behind it.
             </p>
           </div>
         </div>
-      )}
 
-      <form onSubmit={handleSubmit} className="space-y-7">
-        {/* ── Verdict selector ── */}
-        <fieldset>
-          <legend className="mb-3 text-sm font-medium text-text-secondary">
-            Your Verdict
-          </legend>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            {VERDICTS.map((v) => {
-              const isSelected = verdict === v.value;
-              return (
-                <label
-                  key={v.value}
-                  className={`relative flex cursor-pointer items-start gap-2.5
-                              rounded-base border px-3.5 py-3 transition-all duration-150
-                              ring-1 ${
-                                isSelected
-                                  ? `${v.checked} border-transparent`
-                                  : 'border-border-hairline bg-surface-card ring-transparent hover:border-white/10'
-                              }`}
-                >
-                  <input
-                    type="radio"
-                    name="verdict"
-                    value={v.value}
-                    checked={isSelected}
-                    onChange={(e) => setVerdict(e.target.value)}
-                    className="sr-only"
-                  />
-                  {/* Custom radio dot */}
-                  <span
-                    className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center
-                                rounded-full border-2 transition-colors ${
-                                  isSelected ? 'border-current' : 'border-text-muted'
+        {/* Error banner — retry-capable */}
+        {error && (
+          <div className="mb-6 flex items-start gap-3 rounded-lg border-[3px] border-comic-red
+                          bg-comic-red/10 px-4 py-3 animate-evidence-enter">
+            <span className="mt-0.5 text-comic-red shrink-0">
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 8v4m0 4h.01" />
+              </svg>
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-bold text-comic-red">{error}</p>
+              <p className="mt-1 text-xs text-comic-ink/50">
+                Your rationale and evidence have been preserved — just hit submit again.
+              </p>
+            </div>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-7">
+          {/* ── Verdict selector ── */}
+          <fieldset>
+            <legend className="mb-3 text-sm font-bold text-comic-ink/70 uppercase tracking-wider">
+              Your Verdict
+            </legend>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              {VERDICTS.map((v) => {
+                const isSelected = verdict === v.value;
+                return (
+                  <label
+                    key={v.value}
+                    className={`relative flex cursor-pointer items-start gap-2.5
+                                rounded-lg border-[3px] px-3.5 py-3 transition-all duration-150
+                                ${
+                                  isSelected
+                                    ? `${v.borderColor} ${v.selectedBg} shadow-comic-sm`
+                                    : 'border-comic-ink/20 bg-comic-paper hover:border-comic-ink/40'
                                 }`}
                   >
-                    {isSelected && (
-                      <span className={`h-2 w-2 rounded-full ${v.dot}`} />
-                    )}
-                  </span>
-                  <div className="min-w-0">
-                    <span className="text-sm font-medium text-text-primary">
-                      {v.label}
+                    <input
+                      type="radio"
+                      name="verdict"
+                      value={v.value}
+                      checked={isSelected}
+                      onChange={(e) => setVerdict(e.target.value)}
+                      className="sr-only"
+                    />
+                    {/* Custom radio dot */}
+                    <span
+                      className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center
+                                  rounded-full border-2 transition-colors ${
+                                    isSelected ? v.borderColor : 'border-comic-ink/30'
+                                  }`}
+                    >
+                      {isSelected && (
+                        <span className={`h-2 w-2 rounded-full ${v.dotColor}`} />
+                      )}
                     </span>
-                    <p className="mt-0.5 text-[11px] leading-snug text-text-muted">
-                      {v.description}
-                    </p>
-                  </div>
-                </label>
-              );
-            })}
-          </div>
-        </fieldset>
+                    <div className="min-w-0">
+                      <span className="text-sm font-bold text-comic-ink">
+                        {v.label}
+                      </span>
+                      <p className="mt-0.5 text-[11px] leading-snug text-comic-ink/50">
+                        {v.description}
+                      </p>
+                    </div>
+                    {/* STAMPED indicator on selection */}
+                    {isSelected && (
+                      <span className="absolute top-1.5 right-2 text-[9px] font-bold uppercase
+                                       tracking-widest text-comic-ink/30 rotate-[-12deg]">
+                        ✓ Stamped
+                      </span>
+                    )}
+                  </label>
+                );
+              })}
+            </div>
+          </fieldset>
 
-        {/* ── Rationale ── */}
-        <div>
-          <label
-            htmlFor="rationale"
-            className="mb-1.5 block text-sm font-medium text-text-secondary"
-          >
-            Rationale
-          </label>
-          <textarea
-            id="rationale"
-            value={rationale}
-            onChange={(e) => setRationale(e.target.value)}
-            placeholder="Explain the reasoning behind your verdict — what evidence supports your conclusion and why…"
-            rows={5}
-            className="w-full resize-y rounded-lg border border-border-hairline
-                       bg-surface-page px-4 py-2.5 text-sm leading-relaxed text-text-primary
-                       placeholder:text-text-muted outline-none transition-colors
-                       focus:border-accent/50 focus:ring-1 focus:ring-accent/25"
-          />
-          {/* Character count + minimum hint */}
-          <div className="mt-1.5 flex items-center justify-between text-xs">
-            <span className="text-text-muted">
-              Minimum {MIN_RATIONALE_LENGTH} characters
-            </span>
-            <span
-              className={rationaleOk ? 'text-emerald-400' : 'text-text-muted'}
+          {/* ── Rationale ── */}
+          <div>
+            <label
+              htmlFor="rationale"
+              className="mb-1.5 block text-sm font-bold text-comic-ink/70"
             >
-              {rationaleLength} / {MIN_RATIONALE_LENGTH}
-            </span>
+              Rationale
+            </label>
+            <textarea
+              id="rationale"
+              value={rationale}
+              onChange={(e) => setRationale(e.target.value)}
+              placeholder="Explain the reasoning behind your verdict — what evidence supports your conclusion and why…"
+              rows={5}
+              className="w-full resize-y rounded-lg border-2 border-comic-ink/25
+                         bg-white px-4 py-2.5 text-sm leading-relaxed text-comic-ink
+                         placeholder:text-comic-ink/35 outline-none transition-colors
+                         focus:border-comic-blue focus:ring-1 focus:ring-comic-blue/25"
+            />
+            {/* Character count + minimum hint */}
+            <div className="mt-1.5 flex items-center justify-between text-xs">
+              <span className="text-comic-ink/40 font-semibold">
+                Minimum {MIN_RATIONALE_LENGTH} characters
+              </span>
+              <span
+                className={rationaleOk ? 'text-comic-green font-bold' : 'text-comic-ink/40 font-semibold'}
+              >
+                {rationaleLength} / {MIN_RATIONALE_LENGTH}
+              </span>
+            </div>
           </div>
-        </div>
 
-        {/* ── Evidence links (pre-filled from locker) ── */}
-        <div>
-          <label
-            htmlFor="evidenceLinks"
-            className="mb-1.5 block text-sm font-medium text-text-secondary"
+          {/* ── Evidence links (pre-filled from locker) ── */}
+          <div>
+            <label
+              htmlFor="evidenceLinks"
+              className="mb-1.5 block text-sm font-bold text-comic-ink/70"
+            >
+              Evidence Links
+            </label>
+            <textarea
+              id="evidenceLinks"
+              value={evidenceLinks}
+              onChange={(e) => setEvidenceLinks(e.target.value)}
+              placeholder="Paste or review your evidence (one item per line)…"
+              rows={5}
+              className="w-full resize-y rounded-lg border-2 border-comic-ink/25
+                         bg-white px-4 py-2.5 text-sm font-mono leading-relaxed
+                         text-comic-ink placeholder:text-comic-ink/35 outline-none
+                         transition-colors
+                         focus:border-comic-blue focus:ring-1 focus:ring-comic-blue/25"
+            />
+            {prefilled && (
+              <p className="mt-1.5 text-xs text-comic-ink/40 font-semibold">
+                Pre-filled from your Evidence Locker. Edit freely before submitting.
+              </p>
+            )}
+          </div>
+
+          {/* ── Submit ── */}
+          <button
+            type="submit"
+            disabled={!canSubmit}
+            className="inline-flex w-full items-center justify-center gap-2.5
+                       rounded-lg border-[3px] border-comic-ink
+                       bg-comic-red px-6 py-3.5
+                       text-sm font-bold text-white shadow-comic
+                       comic-press
+                       disabled:opacity-40 disabled:pointer-events-none"
           >
-            Evidence Links
-          </label>
-          <textarea
-            id="evidenceLinks"
-            value={evidenceLinks}
-            onChange={(e) => setEvidenceLinks(e.target.value)}
-            placeholder="Paste or review your evidence (one item per line)…"
-            rows={5}
-            className="w-full resize-y rounded-lg border border-border-hairline
-                       bg-surface-page px-4 py-2.5 text-sm font-mono leading-relaxed
-                       text-text-primary placeholder:text-text-muted outline-none
-                       transition-colors
-                       focus:border-accent/50 focus:ring-1 focus:ring-accent/25"
-          />
-          {prefilled && (
-            <p className="mt-1.5 text-xs text-text-muted">
-              Pre-filled from your Evidence Locker. Edit freely before submitting.
-            </p>
-          )}
-        </div>
-
-        {/* ── Submit ── */}
-        <button
-          type="submit"
-          disabled={!canSubmit}
-          className="inline-flex w-full items-center justify-center gap-2.5
-                     rounded-base bg-accent px-6 py-3.5
-                     text-sm font-medium text-white shadow-sm
-                     transition-all duration-200
-                     hover:bg-accent-hover hover:shadow-md active:scale-[0.98]
-                     disabled:opacity-40 disabled:pointer-events-none"
-        >
-          <Scale size={16} strokeWidth={2} />
-          Submit Findings
-        </button>
-      </form>
+            <Scale size={16} strokeWidth={2} />
+            Submit Findings
+          </button>
+        </form>
+      </div>
     </article>
   );
 }

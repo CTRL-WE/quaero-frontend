@@ -1,11 +1,20 @@
 import { Outlet } from 'react-router-dom';
+import logo from '../assets/logo.png';
 
 const AuthLayout = () => (
-  <div className="min-h-screen flex items-center justify-center bg-gray-950 px-4">
-    <div className="w-full max-w-md bg-gray-900 border border-gray-800 rounded-2xl shadow-xl p-5 sm:p-8">
+  <div className="bg-halftone min-h-screen flex items-center justify-center px-4">
+    <div
+      className="w-full max-w-md p-5 sm:p-8"
+      style={{
+        background: 'var(--color-comic-paper)',
+        border: '4px solid var(--color-comic-ink)',
+        borderRadius: 6,
+        boxShadow: '8px 8px 0 var(--color-comic-ink)',
+      }}
+    >
       {/* Brand mark */}
-      <div className="mb-8 text-center">
-        <span className="text-2xl font-bold text-white tracking-wide">Quaero</span>
+      <div className="mb-8 flex flex-col items-center">
+        <img src={logo} alt="Quaero logo" className="h-[60px] w-auto" />
       </div>
 
       {/* Page content (Login / Signup) */}

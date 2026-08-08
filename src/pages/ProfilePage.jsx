@@ -1,94 +1,60 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Info } from 'lucide-react';
 import { getProfile } from '../services/profileService';
 import { getRankTier } from '../utils/rankTiers';
+import { ComicPanel } from '../components/comic';
 import ReputationCard from '../components/ReputationCard';
+import CredibilityIndicator from '../components/CredibilityIndicator';
+import XPProgressCard from '../components/XPProgressCard';
 
-/* ── Icons for reserved sections ─────────────────────────────────── */
+/* ── Badge shelf placeholder icons (SVG medal shapes) ─────────────── */
 
-function TrophyIcon() {
+function MedalIcon({ shape = 'star' }) {
+  const paths = {
+    star: 'M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.27 5.82 21 7 14.14 2 9.27l6.91-1.01z',
+    shield: 'M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z',
+    magnifier: 'M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5z',
+    eye: 'M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z',
+    trophy: 'M6 9H4.5a2.5 2.5 0 010-5H6M18 9h1.5a2.5 2.5 0 000-5H18M4 22h16M10 22V14M14 22V14M18 2H6v7a6 6 0 006 6 6 6 0 006-6V2z',
+  };
+
   return (
-    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M6 9H4.5a2.5 2.5 0 010-5H6M18 9h1.5a2.5 2.5 0 000-5H18M4 22h16M10 22V14M14 22V14" />
-      <path d="M18 2H6v7a6 6 0 006 6 6 6 0 006-6V2z" />
-    </svg>
-  );
-}
-
-function BadgeIcon() {
-  return (
-    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 15l-3.5 2 1-4L6 10l4-.5L12 6l2 3.5 4 .5-3.5 3 1 4z" />
-      <circle cx="12" cy="12" r="10" />
-    </svg>
-  );
-}
-
-function LeaderboardIcon() {
-  return (
-    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-      <rect x="4" y="14" width="4" height="8" rx="1" />
-      <rect x="10" y="8" width="4" height="14" rx="1" />
-      <rect x="16" y="11" width="4" height="11" rx="1" />
-    </svg>
-  );
-}
-
-function FlameIcon() {
-  return (
-    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 22c4.97 0 7-3.58 7-7 0-3-1.5-5.5-3-7.5-.7-.93-1.4-1.78-2-2.73-.4-.63-.78-1.3-1-2.02 0 0-1 1.62-1.5 2.75-.58 1.3-1.5 2.6-2.5 3.75C7.5 11 6 13 5.5 15c-.36 1.43-.5 3 .5 4.5 1.06 1.57 3.15 2.5 6 2.5z" />
-    </svg>
-  );
-}
-
-function CalendarIcon() {
-  return (
-    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="4" width="18" height="18" rx="2" />
-      <path d="M16 2v4M8 2v4M3 10h18" />
-    </svg>
-  );
-}
-
-function LockIcon() {
-  return (
-    <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="11" width="18" height="11" rx="2" />
-      <path d="M7 11V7a5 5 0 0110 0v4" />
-    </svg>
-  );
-}
-
-/* ── ReservedSection — "Coming soon" placeholder block ───────────── */
-
-function ReservedSection({ title, icon }) {
-  return (
-    <div
-      className="flex items-center gap-3 rounded-xl border border-dashed border-gray-700
-                 bg-gray-950/50 px-4 py-4"
+    <svg
+      viewBox="0 0 24 24"
+      width={20}
+      height={20}
+      fill="none"
+      stroke="var(--color-comic-ink)"
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
     >
-      {/* Section icon */}
-      <span className="text-gray-600">{icon}</span>
+      <path d={paths[shape] ?? paths.star} />
+    </svg>
+  );
+}
 
-      {/* Title */}
-      <span className="text-sm font-medium text-gray-500">{title}</span>
+/* ── Classified placeholder for future sections ───────────────────── */
 
-      {/* Spacer */}
-      <span className="flex-1" />
-
-      {/* Coming soon pill */}
+function ClassifiedSection({ title }) {
+  return (
+    <div className="classified-placeholder">
+      <span className="classified-stamp">Classified</span>
       <span
-        className="inline-flex items-center gap-1 rounded-full bg-gray-800/60
-                   px-2.5 py-0.5 text-[11px] font-medium leading-none text-gray-500
-                   ring-1 ring-gray-700/50"
+        style={{
+          flex: 1,
+          fontSize: '0.8rem',
+          fontWeight: 500,
+          color: 'var(--color-comic-ink)',
+        }}
       >
-        <LockIcon />
-        Coming soon
+        {title}
       </span>
     </div>
   );
 }
+
+/* ── Page ─────────────────────────────────────────────────────────── */
 
 function ProfilePage() {
   const [profile, setProfile] = useState(null);
@@ -117,10 +83,11 @@ function ProfilePage() {
     return (
       <div className="flex flex-1 items-center justify-center p-10">
         <svg
-          className="h-8 w-8 animate-spin text-blue-500"
+          className="h-8 w-8 animate-spin"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
+          style={{ color: 'var(--color-comic-brown)' }}
         >
           <circle
             className="opacity-25"
@@ -136,7 +103,12 @@ function ProfilePage() {
             d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
           />
         </svg>
-        <span className="ml-3 text-sm text-gray-400">Loading profile…</span>
+        <span
+          className="ml-3 text-sm"
+          style={{ color: 'var(--color-comic-ink)', opacity: 0.6 }}
+        >
+          Opening dossier…
+        </span>
       </div>
     );
   }
@@ -145,17 +117,30 @@ function ProfilePage() {
   if (error) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-4 p-10">
-        <div
-          className="w-full max-w-md rounded-xl border border-red-500/30 bg-red-500/10
-                      px-5 py-4 text-center text-sm text-red-400"
-        >
-          {error}
-        </div>
+        <ComicPanel rotate={-1}>
+          <div
+            style={{
+              textAlign: 'center',
+              fontFamily: 'var(--font-display)',
+              fontSize: '1rem',
+              color: 'var(--color-comic-red)',
+              padding: '8px 16px',
+            }}
+          >
+            ⚠ {error}
+          </div>
+        </ComicPanel>
         <button
           type="button"
           onClick={fetchProfile}
-          className="min-h-[44px] w-full sm:w-auto rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white
-                     transition-colors hover:bg-blue-700"
+          className="comic-press min-h-[44px] rounded-sm px-5 py-2 font-bold text-sm uppercase tracking-wider"
+          style={{
+            background: 'var(--color-comic-red)',
+            color: 'white',
+            border: '3px solid var(--color-comic-ink)',
+            boxShadow: '4px 4px 0 var(--color-comic-ink)',
+            fontFamily: 'var(--font-display)',
+          }}
         >
           Retry
         </button>
@@ -163,103 +148,115 @@ function ProfilePage() {
     );
   }
 
-  /* ---------- Profile card ---------- */
+  /* ---------- Profile dossier ---------- */
   const {
     username,
     totalXp,
     credibility,
-    // rankTier is intentionally NOT read from the profile response —
-    // derive it from totalXp so the badge and XP progress bar always
-    // agree on tier boundaries (single source of truth via rankTiers.js).
     leaderboardPosition,
     completedInvestigations,
-    successfulSubmissions,
   } = profile ?? {};
 
   const rankTier = totalXp !== undefined ? getRankTier(totalXp) : undefined;
 
   return (
     <section className="flex flex-1 items-start justify-center px-4 py-6 sm:py-12 sm:px-6">
-      <div
-        className="w-full max-w-md rounded-2xl border border-gray-800 bg-gray-900
-                    p-5 sm:p-8 shadow-lg"
-      >
-        {/* Avatar placeholder + username */}
-        <div className="flex flex-col items-center gap-3">
-          <div
-            className="flex h-16 w-16 items-center justify-center rounded-full
-                        bg-blue-500/10 text-2xl font-bold text-blue-400 ring-2 ring-blue-500/25"
-          >
-            {(username ?? '?')[0].toUpperCase()}
-          </div>
+      <div className="w-full max-w-md space-y-5">
 
-          <h1 className="text-xl font-bold tracking-tight text-gray-100 truncate max-w-full">
-            {username ?? 'Unknown'}
+        {/* ── Dossier heading ── */}
+        <ComicPanel rotate={-0.5}>
+          <h1
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: '1.75rem',
+              letterSpacing: '0.05em',
+              color: 'var(--color-comic-ink)',
+              textAlign: 'center',
+              margin: 0,
+              textTransform: 'uppercase',
+            }}
+          >
+            Detective Dossier
           </h1>
-        </div>
+        </ComicPanel>
 
-        {/* Reputation card (rank badge + XP progress + credibility + leaderboard link) */}
-        <div className="mt-6">
-          <ReputationCard
-            xp={totalXp}
-            credibility={credibility}
-            rankTier={rankTier}
-            leaderboardPosition={leaderboardPosition}
-          />
-        </div>
+        {/* ── ID card (ReputationCard) ── */}
+        <ReputationCard
+          xp={totalXp}
+          credibility={credibility}
+          rankTier={rankTier}
+          leaderboardPosition={leaderboardPosition}
+          username={username}
+          completedInvestigations={completedInvestigations}
+        />
 
-        {/* Stat counters */}
-        <div className="mt-4 grid grid-cols-2 gap-4">
-          {/* Completed Investigations */}
+        {/* ── Credibility gauge ── */}
+        <ComicPanel rotate={0.8}>
           <div
-            className="flex flex-col items-center rounded-xl border border-gray-800
-                        bg-gray-950 px-2 sm:px-4 py-5"
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: '0.8rem',
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase',
+              color: 'var(--color-comic-ink)',
+              opacity: 0.5,
+              marginBottom: 8,
+            }}
           >
-            <span className="text-2xl font-bold text-gray-100">
-              {completedInvestigations ?? 0}
-            </span>
-            <span className="mt-1 text-xs font-medium uppercase tracking-wider text-gray-500">
-              Investigations
-            </span>
+            Credibility Assessment
           </div>
+          <div className="flex justify-center">
+            <CredibilityIndicator credibility={credibility} />
+          </div>
+        </ComicPanel>
 
-          {/* Successful Submissions */}
+        {/* ── Rank progress tally ── */}
+        <ComicPanel rotate={-0.3}>
           <div
-            className="flex flex-col items-center rounded-xl border border-gray-800
-                        bg-gray-950 px-2 sm:px-4 py-5"
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: '0.8rem',
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase',
+              color: 'var(--color-comic-ink)',
+              opacity: 0.5,
+              marginBottom: 8,
+            }}
           >
-            <span className="text-2xl font-bold text-gray-100">
-              {successfulSubmissions ?? 0}
-            </span>
-            <span className="mt-1.5 flex items-center gap-1 text-xs font-medium uppercase tracking-wider text-gray-500">
-              Successful
-              <span
-                className="relative group"
-                aria-label="Reasoning score of 70 or above"
-              >
-                <Info className="h-3 w-3 text-gray-600 cursor-help" aria-hidden="true" />
-                <span
-                  className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5
-                             whitespace-nowrap rounded-md bg-gray-800 px-2.5 py-1 text-[11px]
-                             font-normal normal-case tracking-normal text-gray-300 opacity-0
-                             shadow-lg ring-1 ring-gray-700/50 transition-opacity
-                             group-hover:opacity-100"
-                  role="tooltip"
-                >
-                  Reasoning score of 70 or above
-                </span>
-              </span>
-            </span>
+            Rank Progress
           </div>
-        </div>
+          <XPProgressCard totalXp={totalXp} />
+        </ComicPanel>
 
-        {/* ── Reserved future sections ── */}
-        <div className="mt-8 space-y-4">
-          <ReservedSection title="Achievements" icon={<TrophyIcon />} />
-          <ReservedSection title="Badges" icon={<BadgeIcon />} />
-          <ReservedSection title="Leaderboard" icon={<LeaderboardIcon />} />
-          <ReservedSection title="Daily Streak" icon={<FlameIcon />} />
-          <ReservedSection title="Season Progress" icon={<CalendarIcon />} />
+        {/* ── Badge shelf (stub) ── */}
+        <ComicPanel rotate={0.4}>
+          <div
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: '0.8rem',
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase',
+              color: 'var(--color-comic-ink)',
+              opacity: 0.5,
+              marginBottom: 8,
+            }}
+          >
+            Badge Shelf
+          </div>
+          {/* TODO: wire to real badge data once available */}
+          <div className="badge-shelf">
+            <div className="badge-slot"><MedalIcon shape="star" /></div>
+            <div className="badge-slot"><MedalIcon shape="shield" /></div>
+            <div className="badge-slot"><MedalIcon shape="magnifier" /></div>
+            <div className="badge-slot"><MedalIcon shape="eye" /></div>
+            <div className="badge-slot"><MedalIcon shape="trophy" /></div>
+          </div>
+        </ComicPanel>
+
+        {/* ── Classified future sections ── */}
+        <div className="space-y-3">
+          <ClassifiedSection title="Daily Streak" />
+          <ClassifiedSection title="Season Progress" />
         </div>
       </div>
     </section>

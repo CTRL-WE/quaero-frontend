@@ -11,39 +11,33 @@ const ICON_MAP = {
 };
 
 /**
- * Per-tier colour palette — Tailwind classes for bg, text, and ring.
- * Keyed by tier name for easy lookup.
+ * Per-tier colour palette for the stamp — comic-themed colours.
  */
-const TIER_STYLES = {
+const TIER_STAMP = {
   Explorer: {
-    bg: 'bg-slate-500/10',
-    text: 'text-slate-400',
-    ring: 'ring-slate-500/25',
-    iconColor: 'text-slate-400',
+    border: 'var(--color-comic-ink)',
+    text: 'var(--color-comic-ink)',
+    bg: 'rgba(22, 20, 18, 0.06)',
   },
   Investigator: {
-    bg: 'bg-cyan-500/10',
-    text: 'text-cyan-400',
-    ring: 'ring-cyan-500/25',
-    iconColor: 'text-cyan-400',
+    border: 'var(--color-comic-blue)',
+    text: 'var(--color-comic-blue)',
+    bg: 'rgba(46, 100, 168, 0.10)',
   },
   Analyst: {
-    bg: 'bg-purple-500/10',
-    text: 'text-purple-400',
-    ring: 'ring-purple-500/25',
-    iconColor: 'text-purple-400',
+    border: 'var(--color-comic-purple)',
+    text: 'var(--color-comic-purple)',
+    bg: 'rgba(122, 79, 201, 0.10)',
   },
   Detective: {
-    bg: 'bg-amber-500/10',
-    text: 'text-amber-400',
-    ring: 'ring-amber-500/25',
-    iconColor: 'text-amber-400',
+    border: 'var(--color-comic-brown)',
+    text: 'var(--color-comic-brown)',
+    bg: 'rgba(138, 106, 60, 0.10)',
   },
   'Truth Guardian': {
-    bg: 'bg-gradient-to-r from-yellow-500/15 to-emerald-500/15',
-    text: 'text-yellow-300',
-    ring: 'ring-yellow-500/30',
-    iconColor: 'text-emerald-400',
+    border: 'var(--color-comic-red)',
+    text: 'var(--color-comic-red)',
+    bg: 'rgba(224, 62, 45, 0.08)',
   },
 };
 
@@ -51,18 +45,32 @@ const DEFAULT_TIER = RANK_TIERS[0]; // Explorer
 
 function RankBadge({ rankTier }) {
   const tier = rankTier ?? DEFAULT_TIER;
-  const style = TIER_STYLES[tier.name] ?? TIER_STYLES.Explorer;
+  const stamp = TIER_STAMP[tier.name] ?? TIER_STAMP.Explorer;
   const IconComponent = ICON_MAP[tier.icon] ?? Compass;
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1
-                 text-xs font-bold tracking-wide ring-1
-                 ${style.bg} ${style.text} ${style.ring}`}
+      className="inline-flex items-center gap-1.5 px-3 py-1"
+      style={{
+        border: `2px solid ${stamp.border}`,
+        borderRadius: 2,
+        background: stamp.bg,
+        color: stamp.text,
+        fontFamily: 'var(--font-display)',
+        fontSize: '0.8rem',
+        fontWeight: 700,
+        letterSpacing: '0.08em',
+        textTransform: 'uppercase',
+        transform: 'rotate(-2deg)',
+      }}
       aria-label={`Rank: ${tier.name}`}
       role="group"
     >
-      <IconComponent className={`h-3.5 w-3.5 ${style.iconColor}`} aria-hidden="true" />
+      <IconComponent
+        className="h-3.5 w-3.5"
+        style={{ color: stamp.text }}
+        aria-hidden="true"
+      />
       {tier.name}
     </span>
   );

@@ -7,6 +7,7 @@ import {
   BookOpen,
   Archive,
 } from 'lucide-react';
+import { PinnedCard, StampBadge } from './comic';
 
 /**
  * EvidenceCard — collectible-feeling card for a single evidence item.
@@ -32,66 +33,37 @@ const SOURCE_META = {
 
 const FALLBACK_SOURCE = { icon: Globe, label: 'Source', color: '#6b7280' };
 
-/* ── Status badge styles ──────────────────────────────────────────── */
-const STATUS_STYLES = {
-  COLLECTED: {
-    label: 'Collected',
-    classes: 'bg-emerald-500/10 text-emerald-400 ring-emerald-500/25',
-  },
-  PENDING_REVIEW: {
-    label: 'Pending Review',
-    classes: 'bg-amber-500/10 text-amber-400 ring-amber-500/25',
-  },
-  CONTRADICTS_CLAIM: {
-    label: 'Contradicts',
-    classes: 'bg-red-500/10 text-red-400 ring-red-500/25',
-  },
+/* ── Status → StampBadge tone mapping ─────────────────────────────── */
+const STATUS_TONE = {
+  COLLECTED:         'green',
+  PENDING_REVIEW:    'amber',
+  CONTRADICTS_CLAIM: 'red',
 };
 
-const FALLBACK_STATUS = {
-  label: 'Unknown',
-  classes: 'bg-gray-500/10 text-gray-400 ring-gray-500/25',
+const STATUS_LABEL = {
+  COLLECTED:         'Collected',
+  PENDING_REVIEW:    'Pending',
+  CONTRADICTS_CLAIM: 'Contradicts',
 };
 
 /* ── Component ────────────────────────────────────────────────────── */
 
 function EvidenceCard({ sourceType, title, summary, status }) {
   const source = SOURCE_META[sourceType] || FALLBACK_SOURCE;
-  const statusStyle = STATUS_STYLES[status] || FALLBACK_STATUS;
   const Icon = source.icon;
 
   return (
-    <div
-      className="group relative flex flex-col gap-3 rounded-base
-                 border border-border-hairline bg-surface-card p-4
-                 transition-all duration-200 ease-out
-                 hover:border-white/12 hover:shadow-lg hover:shadow-black/30
-                 animate-evidence-enter"
-    >
-      {/* Subtle accent glow on hover */}
-      <div
-        className="pointer-events-none absolute inset-0 rounded-base opacity-0
-                   transition-opacity duration-300 group-hover:opacity-100"
-        style={{
-          background: `radial-gradient(ellipse at 30% 0%, ${source.color}08 0%, transparent 70%)`,
-        }}
-      />
-
-      {/* ── Header: icon + source label ── */}
-      <div className="relative flex items-center gap-2">
+    <PinnedCard pinPosition="left">
+      {/* ── Source-type tag ── */}
+      <div className="flex items-center gap-2 mb-2">
         <span
-          className="flex h-7 w-7 shrink-0 items-center justify-center
-                     rounded-md"
-          style={{
-            color: source.color,
-            backgroundColor: `${source.color}14`,
-          }}
+          className="flex h-6 w-6 shrink-0 items-center justify-center rounded"
+          style={{ color: source.color, backgroundColor: `${source.color}20` }}
         >
-          <Icon size={15} strokeWidth={2} />
+          <Icon size={13} strokeWidth={2} />
         </span>
-
         <span
-          className="text-[11px] font-medium uppercase tracking-wider"
+          className="text-[10px] font-bold uppercase tracking-wider"
           style={{ color: source.color }}
         >
           {source.label}
@@ -99,27 +71,22 @@ function EvidenceCard({ sourceType, title, summary, status }) {
       </div>
 
       {/* ── Title ── */}
-      <h3 className="relative text-sm font-medium leading-snug text-text-primary line-clamp-2">
+      <h3 className="text-sm font-semibold leading-snug text-comic-ink line-clamp-2 mb-1">
         {title}
       </h3>
 
       {/* ── Summary ── */}
-      <p className="relative text-xs leading-relaxed text-text-secondary line-clamp-3">
+      <p className="text-xs leading-relaxed text-comic-ink/65 line-clamp-3 mb-2">
         {summary}
       </p>
 
       {/* ── Status badge ── */}
-      <div className="relative mt-auto pt-1">
-        <span
-          className={`inline-flex items-center rounded-full px-2.5 py-0.5
-                      text-[11px] font-medium leading-none tracking-wide
-                      ring-1 ${statusStyle.classes}`}
-        >
-          {statusStyle.label}
-        </span>
-      </div>
-    </div>
+      <StampBadge tone={STATUS_TONE[status] || 'amber'}>
+        {STATUS_LABEL[status] || 'Unknown'}
+      </StampBadge>
+    </PinnedCard>
   );
 }
 
 export default EvidenceCard;
+

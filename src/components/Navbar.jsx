@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
+import logo from '../assets/logo.png';
 
 function Navbar() {
   const { logout } = useAuth();
@@ -11,27 +12,29 @@ function Navbar() {
   };
 
   return (
-    <header className="h-16 bg-gray-900 border-b border-gray-800 flex items-center px-4 sm:px-6 shrink-0">
-      {/* Brand */}
-      <Link to="/" className="flex items-center gap-2 group">
-        <span
-          className="text-lg font-bold tracking-wide text-white
-                     transition-colors group-hover:text-blue-400"
-        >
-          Quaero
-        </span>
+    <header
+      className="h-16 bg-comic-ink border-b-4 border-comic-red flex items-center px-4 sm:px-6 shrink-0"
+    >
+      {/* Brand — logo + wordmark */}
+      <Link to="/" className="flex items-center gap-2.5 group">
+        <img src={logo} alt="Quaero logo" className="h-9 w-auto" />
       </Link>
 
       {/* Spacer */}
       <div className="flex-1" />
 
       {/* Right-side actions */}
-      <nav className="flex items-center gap-3 sm:gap-5">
-        {/* Profile — icon-only on mobile, icon+text on sm+ */}
+      <nav className="flex items-center gap-2 sm:gap-3">
+        {/* Profile */}
         <Link
           to="/profile"
-          className="inline-flex items-center justify-center gap-1.5 min-h-[44px] min-w-[44px]
-                     text-sm font-medium text-gray-400 transition-colors hover:text-white"
+          className="inline-flex items-center justify-center gap-1.5
+                     min-h-[44px] min-w-[44px] px-3 py-1.5
+                     rounded-lg border-2 border-comic-paper/20
+                     bg-comic-paper/10 text-sm font-bold uppercase tracking-wider
+                     text-comic-paper transition-all
+                     hover:bg-comic-yellow/20 hover:border-comic-yellow/40
+                     hover:text-comic-yellow comic-press"
           aria-label="Profile"
         >
           <svg
@@ -50,11 +53,16 @@ function Navbar() {
           <span className="hidden sm:inline">Profile</span>
         </Link>
 
-        {/* Leaderboard — icon-only on mobile, icon+text on sm+ */}
+        {/* Leaderboard */}
         <Link
           to="/leaderboard"
-          className="inline-flex items-center justify-center gap-1.5 min-h-[44px] min-w-[44px]
-                     text-sm font-medium text-gray-400 transition-colors hover:text-white"
+          className="inline-flex items-center justify-center gap-1.5
+                     min-h-[44px] min-w-[44px] px-3 py-1.5
+                     rounded-lg border-2 border-comic-paper/20
+                     bg-comic-paper/10 text-sm font-bold uppercase tracking-wider
+                     text-comic-paper transition-all
+                     hover:bg-comic-yellow/20 hover:border-comic-yellow/40
+                     hover:text-comic-yellow comic-press"
           aria-label="Leaderboard"
         >
           <svg
@@ -73,14 +81,17 @@ function Navbar() {
           <span className="hidden sm:inline">Leaderboard</span>
         </Link>
 
-        {/* Logout — icon-only on mobile, icon+text on sm+ */}
+        {/* Logout */}
         <button
           type="button"
           onClick={handleLogout}
-          className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-gray-700
-                     bg-gray-800 min-h-[44px] px-3 sm:px-3.5 py-1.5 text-sm font-medium text-gray-300
-                     transition-all hover:border-red-500/50 hover:bg-red-500/10
-                     hover:text-red-400"
+          className="inline-flex items-center justify-center gap-1.5
+                     min-h-[44px] px-3 sm:px-3.5 py-1.5
+                     rounded-lg border-2 border-comic-red/50
+                     bg-comic-red/15 text-sm font-bold uppercase tracking-wider
+                     text-comic-red transition-all
+                     hover:bg-comic-red hover:border-comic-red
+                     hover:text-white comic-press"
           aria-label="Logout"
         >
           <svg
@@ -104,3 +115,4 @@ function Navbar() {
 }
 
 export default Navbar;
+

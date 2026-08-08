@@ -36,30 +36,26 @@ function HelpfulButton({ helpfulCount, isMarked, onToggle, disabled = false }) {
       type="button"
       onClick={handleClick}
       disabled={disabled}
-      className={`
-        group/helpful inline-flex items-center gap-1.5
-        rounded-full px-3 py-1.5
-        text-xs font-medium tracking-wide
-        ring-1 transition-all duration-200 ease-out
-        select-none cursor-pointer
-        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary/60
-        ${
-          localMarked
-            ? 'bg-accent-primary/15 text-accent-primary ring-accent-primary/30'
-            : 'bg-surface-card text-text-secondary ring-border-hairline hover:text-text-primary hover:ring-white/12'
-        }
-        ${disabled ? 'pointer-events-none opacity-50' : ''}
-      `}
+      className="comic-press inline-flex items-center gap-1.5 rounded-sm px-3 py-1.5 text-xs font-bold uppercase tracking-wider select-none cursor-pointer focus-visible:outline-none"
+      style={{
+        border: `2px solid ${localMarked ? 'var(--color-comic-green)' : 'var(--color-comic-ink)'}`,
+        background: localMarked ? 'rgba(63, 145, 66, 0.12)' : 'var(--color-comic-paper)',
+        color: localMarked ? 'var(--color-comic-green)' : 'var(--color-comic-ink)',
+        boxShadow: `2px 2px 0 ${localMarked ? 'var(--color-comic-green)' : 'var(--color-comic-ink)'}`,
+        opacity: disabled ? 0.5 : 1,
+        pointerEvents: disabled ? 'none' : 'auto',
+      }}
       aria-pressed={localMarked}
       aria-label={`Mark helpful (${localCount})`}
     >
       <ThumbsUp
         size={14}
         strokeWidth={2}
-        className={`
-          transition-all duration-200 ease-out
-          ${localMarked ? 'fill-accent-primary stroke-accent-primary scale-110' : 'fill-none group-hover/helpful:scale-105'}
-        `}
+        style={{
+          fill: localMarked ? 'var(--color-comic-green)' : 'none',
+          transition: 'all 0.2s ease-out',
+          transform: localMarked ? 'scale(1.1)' : 'scale(1)',
+        }}
       />
       <span>{localCount}</span>
     </button>

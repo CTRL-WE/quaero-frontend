@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Bangers&display=swap");
 @import "tailwindcss";
 
 @theme {
@@ -27,6 +28,23 @@
   --font-weight-normal: 400;
   --font-weight-medium: 500;
 
+  /* ══════════════════════════════════════════════════════════════════
+     DETECTIVE COMIC THEME — additive tokens (do not remove originals)
+     ══════════════════════════════════════════════════════════════════ */
+
+  /* ── Comic palette ── */
+  --color-comic-paper:  #f3e6c8;
+  --color-comic-ink:    #161412;
+  --color-comic-red:    #e03e2d;
+  --color-comic-yellow: #ffce3a;
+  --color-comic-blue:   #2e64a8;
+  --color-comic-purple: #7a4fc9;
+  --color-comic-green:  #3f9142;
+  --color-comic-brown:  #8a6a3c;
+
+  /* ── Display typography (bold italic headlines) ── */
+  --font-display: "Bangers", "Impact", "Arial Black", ui-sans-serif, system-ui, sans-serif;
+
   /* ── Animations ── */
   --animate-evidence-enter: evidence-enter 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
 
@@ -52,4 +70,273 @@
       box-shadow: 0 0 0 0 rgba(250, 204, 21, 0);
     }
   }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   DETECTIVE COMIC — reusable utility classes
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* Halftone dot-pattern overlay on cream paper background.
+   Uses a radial-gradient tile (~8 px) at low opacity. */
+.bg-halftone {
+  background-color: var(--color-comic-paper);
+  background-image: radial-gradient(
+    circle,
+    var(--color-comic-ink) 0.8px,
+    transparent 0.8px
+  );
+  background-size: 8px 8px;
+  background-blend-mode: multiply;
+  /* Keep dots subtle — override opacity per-element if needed */
+  --halftone-opacity: 0.06;
+  background-image: radial-gradient(
+    circle,
+    rgba(22, 20, 18, var(--halftone-opacity)) 0.8px,
+    transparent 0.8px
+  );
+}
+
+/* Hard offset drop-shadows — no blur, pure comic ink. */
+.shadow-comic {
+  box-shadow: 8px 8px 0 var(--color-comic-ink);
+}
+
+.shadow-comic-sm {
+  box-shadow: 4px 4px 0 var(--color-comic-ink);
+}
+
+/* Thick ink outline with slight rounding. */
+.border-comic {
+  border: 4px solid var(--color-comic-ink);
+  border-radius: 6px;
+}
+
+/* ── Comic button press — shadow compresses on :active ── */
+.comic-press {
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+.comic-press:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--color-comic-ink);
+}
+
+/* ── Speech-bubble tails (CSS-drawn bordered triangles) ── */
+.speech-bubble-ai,
+.speech-bubble-user {
+  position: relative;
+}
+
+/* AI — tail points left */
+.speech-bubble-ai::before {
+  content: '';
+  position: absolute;
+  left: -13px;
+  top: 14px;
+  border-top: 9px solid transparent;
+  border-bottom: 9px solid transparent;
+  border-right: 13px solid var(--color-comic-ink);
+  border-left: 0;
+}
+.speech-bubble-ai::after {
+  content: '';
+  position: absolute;
+  left: -6px;
+  top: 17px;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+  border-right: 8px solid var(--speech-bubble-bg, #ece0f5);
+  border-left: 0;
+}
+
+/* User — tail points right */
+.speech-bubble-user::before {
+  content: '';
+  position: absolute;
+  right: -13px;
+  top: 14px;
+  border-top: 9px solid transparent;
+  border-bottom: 9px solid transparent;
+  border-left: 13px solid var(--color-comic-ink);
+  border-right: 0;
+}
+.speech-bubble-user::after {
+  content: '';
+  position: absolute;
+  right: -6px;
+  top: 17px;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+  border-left: 8px solid var(--speech-bubble-bg, var(--color-comic-red, #e03e2d));
+  border-right: 0;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   DETECTIVE DOSSIER — Profile page restyle utilities
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── Stamp-slam animation (celebration stamp entry) ── */
+@keyframes stamp-slam {
+  0% {
+    opacity: 0;
+    transform: scale(2.5) rotate(-12deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(0.9) rotate(2deg);
+  }
+  70% {
+    transform: scale(1.05) rotate(-1deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(-2deg);
+  }
+}
+
+/* ── Needle swing animation (credibility gauge) ── */
+@keyframes needle-swing {
+  0% {
+    transform: rotate(-90deg);
+  }
+  60% {
+    transform: rotate(var(--needle-target, 0deg));
+  }
+  75% {
+    transform: rotate(calc(var(--needle-target, 0deg) - 8deg));
+  }
+  90% {
+    transform: rotate(calc(var(--needle-target, 0deg) + 3deg));
+  }
+  100% {
+    transform: rotate(var(--needle-target, 0deg));
+  }
+}
+
+/* ── ID-card dossier layout ── */
+.dossier-id-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 16px;
+  align-items: start;
+}
+.dossier-id-card .photo-frame {
+  border: 3px solid var(--color-comic-ink);
+  border-radius: 4px;
+  background: var(--color-comic-paper);
+  padding: 4px;
+  box-shadow: 2px 2px 0 var(--color-comic-ink);
+}
+
+/* ── Badge shelf ── */
+.badge-shelf {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 8px 0;
+}
+.badge-shelf .badge-slot {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed var(--color-comic-ink);
+  border-radius: 50%;
+  opacity: 0.35;
+  background: var(--color-comic-paper);
+}
+
+/* ── Dossier stat row ── */
+.dossier-stat-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px dashed rgba(22, 20, 18, 0.15);
+  font-size: 0.8125rem;
+  color: var(--color-comic-ink);
+}
+.dossier-stat-row:last-child {
+  border-bottom: none;
+}
+.dossier-stat-row .stat-label {
+  flex: 1;
+  font-weight: 500;
+  text-transform: uppercase;
+  font-size: 0.6875rem;
+  letter-spacing: 0.05em;
+  opacity: 0.65;
+}
+.dossier-stat-row .stat-value {
+  font-weight: 700;
+  font-family: var(--font-display);
+  font-size: 1rem;
+}
+
+/* ── Classified placeholder (replaces ReservedSection) ── */
+.classified-placeholder {
+  border: 2px dashed var(--color-comic-ink);
+  border-radius: 6px;
+  background: var(--color-comic-paper);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  opacity: 0.5;
+}
+.classified-placeholder .classified-stamp {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-comic-red);
+  border: 2px solid var(--color-comic-red);
+  padding: 2px 8px;
+  border-radius: 2px;
+  transform: rotate(-2deg);
+}
+
+/* ── Rank tally tier row ── */
+.tier-tally-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+}
+.tier-tally-row .tier-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.tier-tally-row .tier-name {
+  width: 100px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-comic-ink);
+}
+.tier-tally-row .tier-bar-track {
+  flex: 1;
+  height: 10px;
+  background: rgba(22, 20, 18, 0.08);
+  border: 2px solid var(--color-comic-ink);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.tier-tally-row .tier-bar-fill {
+  height: 100%;
+  border-radius: 1px;
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.tier-tally-row.is-current {
+  background: rgba(255, 206, 58, 0.12);
+  border-radius: 4px;
+  padding-left: 6px;
+  padding-right: 6px;
+  margin: 0 -6px;
 }

@@ -98,11 +98,11 @@ function ChatPage() {
   };
 
   return (
-    <div className="flex h-[calc(100vh-64px)] flex-col overflow-hidden">
+    <div className="flex h-[calc(100vh-64px)] flex-col overflow-hidden bg-halftone">
       {/* ═══════════════════════════════════════════════════════════════
           1) Reference Post Strip — pinned at top
           ═══════════════════════════════════════════════════════════ */}
-      <div className="shrink-0 border-b border-border-hairline px-3 py-2 sm:px-4">
+      <div className="shrink-0 border-b-[3px] border-comic-ink px-3 py-2 sm:px-4 bg-comic-paper">
         <ReferencePostStrip
           platform={mockCase.platform}
           mediaUrl={mockCase.mediaUrl}
@@ -132,7 +132,7 @@ function ChatPage() {
         <section className="flex min-h-0 flex-1 flex-col">
           {/* Chat messages — scrollable */}
           <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4
-                          scrollbar-thin scrollbar-thumb-white/8 scrollbar-track-transparent">
+                          scrollbar-thin scrollbar-thumb-comic-ink/10 scrollbar-track-transparent">
             {messages.map((message) => (
               <ChatBubble
                 key={message.id}
@@ -144,11 +144,11 @@ function ChatPage() {
             {/* Typing indicator — only visible while AI is thinking */}
             {isAiTyping && (
               <div className="flex justify-start">
-                <div className="inline-flex items-center gap-1 rounded-2xl
-                                bg-surface-overlay px-4 py-3">
-                  <span className="h-1.5 w-1.5 rounded-full bg-text-muted animate-bounce [animation-delay:0ms]" />
-                  <span className="h-1.5 w-1.5 rounded-full bg-text-muted animate-bounce [animation-delay:150ms]" />
-                  <span className="h-1.5 w-1.5 rounded-full bg-text-muted animate-bounce [animation-delay:300ms]" />
+                <div className="inline-flex items-center gap-1 rounded-lg
+                                border-[3px] border-comic-ink bg-[#ece0f5] px-4 py-3">
+                  <span className="h-2 w-2 rounded-full bg-comic-purple animate-bounce [animation-delay:0ms]" />
+                  <span className="h-2 w-2 rounded-full bg-comic-purple animate-bounce [animation-delay:150ms]" />
+                  <span className="h-2 w-2 rounded-full bg-comic-purple animate-bounce [animation-delay:300ms]" />
                 </div>
               </div>
             )}
@@ -165,8 +165,8 @@ function ChatPage() {
           </div>
 
           {/* Chat input */}
-          <div className="shrink-0 border-t border-border-hairline bg-surface-card/60
-                          px-4 py-3 backdrop-blur-sm">
+          <div className="shrink-0 border-t-[3px] border-comic-ink bg-comic-paper
+                          px-4 py-3">
             <div className="flex flex-wrap gap-2">
               <input
                 value={input}
@@ -174,19 +174,19 @@ function ChatPage() {
                 onKeyDown={handleKeyDown}
                 disabled={isAiTyping}
                 placeholder={isAiTyping ? 'AI is thinking…' : 'Type your reasoning...'}
-                className="flex-1 rounded-lg border border-border-hairline
-                           bg-surface-page px-4 py-2.5 text-sm text-text-primary
-                           placeholder:text-text-muted outline-none transition-colors
-                           focus:border-accent/50 focus:ring-1 focus:ring-accent/25
+                className="flex-1 rounded-lg border-2 border-comic-ink/25
+                           bg-white px-4 py-2.5 text-sm text-comic-ink
+                           placeholder:text-comic-ink/35 outline-none transition-colors
+                           focus:border-comic-blue focus:ring-1 focus:ring-comic-blue/25
                            disabled:opacity-50 disabled:cursor-not-allowed"
               />
               <button
                 type="button"
                 onClick={handleSend}
                 disabled={isAiTyping}
-                className="shrink-0 rounded-lg bg-accent px-5 py-2.5 text-sm
-                           font-medium text-white transition-colors duration-150
-                           hover:bg-accent-hover active:scale-[0.97]
+                className="shrink-0 rounded-lg border-[3px] border-comic-ink
+                           bg-comic-red px-5 py-2.5 text-sm
+                           font-bold text-white shadow-comic-sm comic-press
                            disabled:opacity-50 disabled:pointer-events-none"
               >
                 Send
@@ -197,10 +197,9 @@ function ChatPage() {
                   type="button"
                   onClick={handleSubmitFindings}
                   className="w-full sm:w-auto shrink-0 inline-flex items-center
-                              justify-center gap-1.5 rounded-lg
-                              bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white
-                              transition-colors duration-150
-                              hover:bg-emerald-500 active:scale-[0.97]
+                              justify-center gap-1.5 rounded-lg border-[3px] border-comic-ink
+                              bg-comic-green px-4 py-2.5 text-sm font-bold text-white
+                              shadow-comic-sm comic-press
                               animate-evidence-enter"
                 >
                   <Send size={14} strokeWidth={2.5} />
@@ -214,9 +213,9 @@ function ChatPage() {
         {/* ────────────────────────────────────────────────────────────
             RIGHT COLUMN — Evidence Locker (desktop sidebar)
             ──────────────────────────────────────────────────────── */}
-        <aside className="hidden w-80 shrink-0 overflow-y-auto border-l
-                          border-border-hairline p-3 lg:block
-                          scrollbar-thin scrollbar-thumb-white/8 scrollbar-track-transparent">
+        <aside className="hidden w-80 shrink-0 overflow-y-auto border-l-[3px]
+                          border-comic-ink bg-comic-paper/50 p-3 lg:block
+                          scrollbar-thin scrollbar-thumb-comic-ink/10 scrollbar-track-transparent">
           <EvidenceLocker
             evidenceItems={evidenceItems}
             onAdd={addEvidence}
@@ -228,13 +227,13 @@ function ChatPage() {
       {/* ═══════════════════════════════════════════════════════════════
           Mobile-only: collapsible Evidence Locker at bottom
           ═══════════════════════════════════════════════════════════ */}
-      <div className="shrink-0 border-t border-border-hairline lg:hidden">
+      <div className="shrink-0 border-t-[3px] border-comic-ink lg:hidden">
         <button
           type="button"
           onClick={() => setEvidenceOpen((o) => !o)}
           className="flex w-full items-center justify-between px-4 py-2.5
-                     text-sm font-medium text-text-secondary
-                     transition-colors hover:text-text-primary"
+                     text-sm font-bold text-comic-ink bg-comic-paper
+                     transition-colors hover:bg-comic-yellow/15"
         >
           <span>Evidence Locker{evidenceItems.length > 0 && ` (${evidenceItems.length})`}</span>
           <ChevronDown
@@ -246,8 +245,8 @@ function ChatPage() {
         </button>
 
         {evidenceOpen && (
-          <div className="max-h-80 overflow-y-auto px-3 pb-3 animate-evidence-enter
-                          scrollbar-thin scrollbar-thumb-white/8 scrollbar-track-transparent">
+          <div className="max-h-80 overflow-y-auto px-3 pb-3 bg-comic-paper/70 animate-evidence-enter
+                          scrollbar-thin scrollbar-thumb-comic-ink/10 scrollbar-track-transparent">
             <EvidenceLocker
               evidenceItems={evidenceItems}
               onAdd={addEvidence}

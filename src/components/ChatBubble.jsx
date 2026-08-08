@@ -1,19 +1,28 @@
+import { SpeechBubble } from './comic';
+
 function ChatBubble({ sender, text }) {
   const isUser = sender === 'USER';
 
   return (
-    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
+    <div className={`flex items-end gap-2.5 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
+      {/* Avatar */}
       <div
-        className={`max-w-[75%] rounded-2xl px-4 py-3 text-sm ${
-          isUser
-            ? 'bg-blue-600 text-white'
-            : 'bg-gray-200 text-gray-900'
-        }`}
+        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full
+                    border-2 border-comic-ink text-[11px] font-bold uppercase
+                    ${isUser
+                      ? 'bg-comic-yellow text-comic-ink'
+                      : 'bg-comic-purple text-white'
+                    }`}
       >
-        {text}
+        {isUser ? '🔍' : '🕵️'}
       </div>
+
+      {/* Bubble */}
+      <SpeechBubble variant={isUser ? 'user' : 'ai'}>
+        {text}
+      </SpeechBubble>
     </div>
   );
 }
 
-export default ChatBubble;
+export default ChatBubble;

@@ -1,62 +1,133 @@
 import { Link } from 'react-router-dom';
-import { Trophy } from 'lucide-react';
 import { RANK_TIERS } from '../utils/rankTiers';
+import { ComicPanel, DetectiveMascot } from './comic';
 import RankBadge from './RankBadge';
-import XPProgressCard from './XPProgressCard';
-import CredibilityIndicator from './CredibilityIndicator';
 
 /**
- * ReputationCard — compact card combining rank badge, XP progress,
- * credibility score, and leaderboard link.
+ * ReputationCard — ID-card dossier layout.
  *
  * Props:
- *   xp                  – number | undefined (undefined → loading)
- *   credibility         – number | null | undefined
- *   rankTier            – tier object from getRankTier() | undefined
- *   leaderboardPosition – number | undefined
- *
- * Brand-new user (0 XP, null credibility, Explorer) renders a
- * complete, non-broken card.
+ *   xp                      – number | undefined
+ *   credibility             – number | null | undefined
+ *   rankTier                – tier object from getRankTier() | undefined
+ *   leaderboardPosition     – number | undefined
+ *   username                – string | undefined
+ *   completedInvestigations – number | undefined
  */
 
 const DEFAULT_TIER = RANK_TIERS[0]; // Explorer
 
-function ReputationCard({ xp, credibility, rankTier, leaderboardPosition }) {
+function ReputationCard({
+  xp,
+  credibility,
+  rankTier,
+  leaderboardPosition,
+  username,
+  completedInvestigations,
+}) {
   const tier = rankTier ?? DEFAULT_TIER;
 
+  const displayCredibility =
+    credibility === null
+      ? '—'
+      : credibility === undefined
+        ? '…'
+        : Number.isInteger(credibility)
+          ? credibility
+          : credibility.toFixed(1);
+
   return (
-    <section
-      className="rounded-base border border-border-hairline bg-surface-card p-4
-                 space-y-3"
-      aria-label="Your reputation"
-    >
-      {/* ── Header row: badge + credibility ── */}
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <RankBadge rankTier={tier} />
-        <CredibilityIndicator credibility={credibility} />
-      </div>
+    <ComicPanel rotate={0.5} className="bg-halftone">
+      <section aria-label="Detective ID Card">
+        {/* ── ID card header ── */}
+        <div
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: '0.7rem',
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            color: 'var(--color-comic-ink)',
+            opacity: 0.5,
+            marginBottom: 12,
+          }}
+        >
+          Quaero Investigation Bureau — Agent ID
+        </div>
 
-      {/* ── XP progress bar ── */}
-      <XPProgressCard totalXp={xp} />
+        {/* ── Photo + info grid ── */}
+        <div className="dossier-id-card">
+          {/* Photo frame with DetectiveMascot */}
+          <div className="photo-frame">
+            <DetectiveMascot size={72} />
+          </div>
 
-      {/* ── Leaderboard link ── */}
-      <div className="flex items-center gap-1.5 text-xs text-text-muted">
-        <Trophy className="h-3 w-3 shrink-0" aria-hidden="true" />
-        {leaderboardPosition !== undefined ? (
-          <Link
-            to="/leaderboard"
-            className="hover:text-text-secondary transition-colors duration-150"
-          >
-            <span className="font-semibold text-text-secondary tabular-nums">
-              #{leaderboardPosition}
+          {/* Right column: name, rank, handle */}
+          <div style={{ minWidth: 0 }}>
+            <h2
+              className="truncate"
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: '1.4rem',
+                letterSpacing: '0.03em',
+                color: 'var(--color-comic-ink)',
+                margin: 0,
+                lineHeight: 1.2,
+              }}
+            >
+              {username ?? 'Unknown Agent'}
+            </h2>
+
+            <div
+              style={{
+                fontSize: '0.75rem',
+                color: 'var(--color-comic-ink)',
+                opacity: 0.5,
+                marginTop: 2,
+                marginBottom: 8,
+              }}
+            >
+              @{(username ?? 'unknown').toLowerCase()}
+            </div>
+
+            <RankBadge rankTier={tier} />
+          </div>
+        </div>
+
+        {/* ── Stat rows ── */}
+        <div style={{ marginTop: 16 }}>
+          <div className="dossier-stat-row">
+            <span className="stat-label">Total XP</span>
+            <span className="stat-value">{xp ?? '…'}</span>
+          </div>
+          <div className="dossier-stat-row">
+            <span className="stat-label">Credibility</span>
+            <span className="stat-value">{displayCredibility}</span>
+          </div>
+          <div className="dossier-stat-row">
+            <span className="stat-label">Cases Solved</span>
+            <span className="stat-value">{completedInvestigations ?? '…'}</span>
+          </div>
+          <div className="dossier-stat-row">
+            <span className="stat-label">Leaderboard</span>
+            <span className="stat-value">
+              {leaderboardPosition !== undefined ? (
+                <Link
+                  to="/leaderboard"
+                  style={{
+                    color: 'var(--color-comic-blue)',
+                    textDecoration: 'none',
+                  }}
+                >
+                  #{leaderboardPosition}
+                </Link>
+              ) : (
+                '…'
+              )}
             </span>
-            {' '}on the leaderboard
-          </Link>
-        ) : (
-          <span className="h-3 w-28 animate-pulse rounded bg-surface-overlay" />
-        )}
-      </div>
-    </section>
+          </div>
+        </div>
+      </section>
+    </ComicPanel>
   );
 }
 

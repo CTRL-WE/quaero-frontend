@@ -1,34 +1,57 @@
-import { getProgressToNextTier } from '../utils/rankTiers';
+import { Compass, Search, BarChart3, ShieldCheck, Crown } from 'lucide-react';
+import { RANK_TIERS, getProgressToNextTier } from '../utils/rankTiers';
 
 /**
- * XPProgressCard — shows a linear progress bar toward the next rank tier.
+ * XPProgressCard — rank-tier tally: one row per tier with a fill bar.
  *
  * Props:
  *   totalXp – the user's total XP (undefined triggers skeleton state)
  */
 
-/* ── Gradient stops per tier for the progress bar fill ────────────── */
-const TIER_BAR_GRADIENT = {
-  Explorer: 'linear-gradient(90deg, #94a3b8, #64748b)',
-  Investigator: 'linear-gradient(90deg, #22d3ee, #06b6d4)',
-  Analyst: 'linear-gradient(90deg, #a78bfa, #8b5cf6)',
-  Detective: 'linear-gradient(90deg, #fbbf24, #f59e0b)',
-  'Truth Guardian': 'linear-gradient(90deg, #fbbf24, #34d399)',
+/* ── Icon map (matches rankTiers icon strings) ────────────────────── */
+const ICON_MAP = {
+  Compass,
+  Search,
+  BarChart3,
+  ShieldCheck,
+  Crown,
+};
+
+/* ── Per-tier fill colours ────────────────────────────────────────── */
+const TIER_FILL = {
+  Explorer:       '#8a8a92',
+  Investigator:   '#2e64a8',
+  Analyst:        '#7a4fc9',
+  Detective:      '#8a6a3c',
+  'Truth Guardian': '#e03e2d',
 };
 
 /* ── Skeleton (loading) state ─────────────────────────────────────── */
 function Skeleton() {
   return (
-    <div
-      className="rounded-base border border-border-hairline bg-surface-card/80 px-4 py-3"
-      aria-busy="true"
-      aria-label="Loading rank progress"
-    >
-      {/* Label skeleton */}
-      <div className="mb-2 h-3 w-40 animate-pulse rounded bg-surface-overlay" />
-
-      {/* Bar skeleton */}
-      <div className="h-2 w-full animate-pulse rounded-full bg-surface-overlay" />
+    <div aria-busy="true" aria-label="Loading rank progress">
+      {RANK_TIERS.map((tier) => (
+        <div key={tier.name} className="tier-tally-row" style={{ opacity: 0.3 }}>
+          <div className="tier-icon">
+            <div
+              className="animate-pulse"
+              style={{
+                width: 16,
+                height: 16,
+                borderRadius: 3,
+                background: 'rgba(22, 20, 18, 0.12)',
+              }}
+            />
+          </div>
+          <div
+            className="tier-name animate-pulse"
+            style={{ background: 'rgba(22,20,18,0.08)', height: 10, borderRadius: 3 }}
+          />
+          <div className="tier-bar-track">
+            <div className="tier-bar-fill" style={{ width: 0 }} />
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
@@ -40,72 +63,62 @@ function XPProgressCard({ totalXp }) {
 
   const {
     currentTier,
-    nextTier,
-    xpIntoTier,
-    xpNeededForNextTier,
     percentToNext,
   } = getProgressToNextTier(totalXp);
 
-  const isTopTier = nextTier === null;
-  const gradient =
-    TIER_BAR_GRADIENT[currentTier.name] ?? TIER_BAR_GRADIENT.Explorer;
-
-  /* ── Aria label ── */
-  const ariaLabel = isTopTier
-    ? `Rank: ${currentTier.name}, Top Tier`
-    : `Rank: ${currentTier.name}, ${xpIntoTier} of ${xpNeededForNextTier} XP to next rank`;
+  const currentIndex = RANK_TIERS.indexOf(currentTier);
 
   return (
-    <div
-      className="rounded-base border border-border-hairline bg-surface-card/80 px-4 py-3"
-    >
-      {/* Label row */}
-      <div className="mb-2 flex items-baseline justify-between text-xs">
-        {isTopTier ? (
-          <>
-            <span className="font-semibold text-yellow-300">
-              ✦ Top Tier
-            </span>
-            <span className="text-text-muted">
-              {currentTier.name}
-            </span>
-          </>
-        ) : (
-          <>
-            <span className="text-text-secondary">
-              <span className="font-semibold text-text-primary">
-                {xpIntoTier}
-              </span>
-              {' / '}
-              {xpNeededForNextTier} XP to{' '}
-              <span className="font-medium text-text-primary">
-                {nextTier.name}
-              </span>
-            </span>
-            <span className="tabular-nums text-text-muted">
-              {percentToNext}%
-            </span>
-          </>
-        )}
-      </div>
+    <div aria-label={`Rank progress: ${currentTier.name}`}>
+      {RANK_TIERS.map((tier, idx) => {
+        const IconComponent = ICON_MAP[tier.icon] ?? Compass;
+        const isCurrent = idx === currentIndex;
+        const fillColor = TIER_FILL[tier.name] ?? TIER_FILL.Explorer;
 
-      {/* Progress track */}
-      <div
-        className="h-2 w-full overflow-hidden rounded-full bg-surface-overlay"
-        role="progressbar"
-        aria-label={ariaLabel}
-        aria-valuenow={percentToNext}
-        aria-valuemin={0}
-        aria-valuemax={100}
-      >
-        <div
-          className="h-full rounded-full transition-all duration-500 ease-out"
-          style={{
-            width: `${percentToNext}%`,
-            background: gradient,
-          }}
-        />
-      </div>
+        // Fill logic
+        let fillPercent = 0;
+        if (idx < currentIndex) {
+          fillPercent = 100;
+        } else if (isCurrent) {
+          fillPercent = percentToNext;
+        }
+
+        return (
+          <div
+            key={tier.name}
+            className={`tier-tally-row ${isCurrent ? 'is-current' : ''}`}
+          >
+            <div className="tier-icon">
+              <IconComponent
+                className="h-4 w-4"
+                style={{
+                  color: isCurrent || idx < currentIndex
+                    ? fillColor
+                    : 'rgba(22,20,18,0.25)',
+                }}
+                aria-hidden="true"
+              />
+            </div>
+            <span
+              className="tier-name"
+              style={{
+                opacity: isCurrent || idx < currentIndex ? 1 : 0.35,
+              }}
+            >
+              {tier.name}
+            </span>
+            <div className="tier-bar-track">
+              <div
+                className="tier-bar-fill"
+                style={{
+                  width: `${fillPercent}%`,
+                  background: fillColor,
+                }}
+              />
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }

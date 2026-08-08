@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import PlatformPost from './PlatformPost';
-import DifficultyBadge from './DifficultyBadge';
 import CategoryChip from './CategoryChip';
+import { ComicPanel, StampBadge } from './comic';
 
 /* ── Helpers ─────────────────────────────────────────────────────── */
 
@@ -114,6 +114,11 @@ function SharesIcon() {
   );
 }
 
+/* ── Difficulty → StampBadge mapping ─────────────────────────────── */
+
+const DIFFICULTY_TONE  = { EASY: 'green', MEDIUM: 'amber', HARD: 'red' };
+const DIFFICULTY_LABEL = { EASY: 'Easy', MEDIUM: 'Medium', HARD: 'Hard' };
+
 /* ── Main component ──────────────────────────────────────────────── */
 
 function CaseCard({
@@ -133,100 +138,129 @@ function CaseCard({
 }) {
   const navigate = useNavigate();
   const platformColor = PLATFORM_COLORS[platform] || PLATFORM_COLORS.OTHER;
+  const caseNumber = id.replace(/[^0-9]/g, '').padStart(3, '0');
 
   return (
     <button
       type="button"
       onClick={() => navigate(`/cases/${id}/brief`)}
-      className="group flex w-full flex-col text-left rounded-base
-                 border border-border-hairline bg-surface-card
-                 transition-all duration-200
-                 hover:border-accent/40 hover:-translate-y-0.5
-                 focus-visible:outline-2 focus-visible:outline-accent"
+      className="w-full text-left cursor-pointer group
+                 focus-visible:outline-2 focus-visible:outline-offset-4
+                 focus-visible:outline-comic-red"
     >
-      {/* ── Header row: platform icon + poster … relative time ── */}
-      <div className="flex items-center gap-2 px-3.5 pt-3 pb-2">
-        <span
-          className="h-4 w-4 shrink-0"
-          style={{ color: platformColor }}
-        >
-          {PLATFORM_ICONS[platform] || PLATFORM_ICONS.OTHER}
-        </span>
-
-        <span className="truncate text-xs font-medium text-text-primary">
-          {originalPoster}
-        </span>
-
-        <span className="ml-auto shrink-0 text-[11px] text-text-muted">
-          {relativeTime(publishedAt)}
-        </span>
-      </div>
-
-      {/* ── Media ── */}
-      <div className="px-3.5">
-        <PlatformPost
-          platform={platform}
-          mediaUrl={mediaUrl}
-          mediaType={mediaType}
-          caption={caption}
-          size="card"
-        />
-      </div>
-
-      {/* ── Caption (2 lines max) ── */}
-      {caption && (
-        <p className="px-3.5 pt-2.5 text-sm text-text-secondary line-clamp-2 leading-snug">
-          {caption}
-        </p>
-      )}
-
-      {/* ── Engagement row ── */}
-      <div className="flex items-center gap-4 px-3.5 pt-2.5 text-text-muted">
-        <span className="inline-flex items-center gap-1 text-xs">
-          <LikesIcon />
-          {shortNum(engagementLikes)}
-        </span>
-        <span className="inline-flex items-center gap-1 text-xs">
-          <CommentsIcon />
-          {shortNum(engagementComments)}
-        </span>
-        <span className="inline-flex items-center gap-1 text-xs">
-          <SharesIcon />
-          {shortNum(engagementShares)}
-        </span>
-      </div>
-
-      {/* ── Bottom row: badges ── */}
-      <div className="flex items-center gap-2 px-3.5 pt-2.5 pb-3.5">
-        <DifficultyBadge difficulty={verificationDifficulty} />
-        <CategoryChip category={category} />
-
-        {completed && (
-          <span
-            className="ml-auto inline-flex items-center gap-1
-                       rounded-full bg-emerald-500/10 px-2.5 py-0.5
-                       text-[11px] font-medium leading-none text-emerald-400
-                       ring-1 ring-emerald-500/25"
-          >
-            <svg
-              className="h-3 w-3"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2.5}
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M4.5 12.75l6 6 9-13.5"
-              />
-            </svg>
-            Completed
+      <ComicPanel className="transition-[filter] duration-200 group-hover:brightness-[1.03]">
+        {/* ── Case number tag + difficulty stamp ── */}
+        <div className="flex items-start justify-between gap-2 mb-3">
+          <span className="font-display text-sm tracking-wider text-comic-brown uppercase">
+            Case No.{caseNumber}
           </span>
+          <StampBadge tone={DIFFICULTY_TONE[verificationDifficulty] || 'amber'}>
+            {DIFFICULTY_LABEL[verificationDifficulty] || 'Medium'}
+          </StampBadge>
+        </div>
+
+        {/* ── Header row: platform icon + poster + relative time ── */}
+        <div className="flex items-center gap-2 pb-2">
+          <span
+            className="h-4 w-4 shrink-0"
+            style={{ color: platformColor }}
+          >
+            {PLATFORM_ICONS[platform] || PLATFORM_ICONS.OTHER}
+          </span>
+
+          <span className="truncate text-xs font-semibold text-comic-ink">
+            {originalPoster}
+          </span>
+
+          <span className="ml-auto shrink-0 text-[11px] text-comic-ink/40">
+            {relativeTime(publishedAt)}
+          </span>
+        </div>
+
+        {/* ── Media ── */}
+        <div className="rounded overflow-hidden border-2 border-comic-ink/15">
+          <PlatformPost
+            platform={platform}
+            mediaUrl={mediaUrl}
+            mediaType={mediaType}
+            caption={caption}
+            size="card"
+          />
+        </div>
+
+        {/* ── Caption (2 lines max) ── */}
+        {caption && (
+          <p className="pt-2.5 text-sm text-comic-ink/75 line-clamp-2 leading-snug">
+            {caption}
+          </p>
         )}
-      </div>
+
+        {/* ── Engagement row ── */}
+        <div className="flex items-center gap-4 pt-2.5 text-comic-ink/40">
+          <span className="inline-flex items-center gap-1 text-xs">
+            <LikesIcon />
+            {shortNum(engagementLikes)}
+          </span>
+          <span className="inline-flex items-center gap-1 text-xs">
+            <CommentsIcon />
+            {shortNum(engagementComments)}
+          </span>
+          <span className="inline-flex items-center gap-1 text-xs">
+            <SharesIcon />
+            {shortNum(engagementShares)}
+          </span>
+        </div>
+
+        {/* ── Bottom row: category + solved/open status ── */}
+        <div className="flex items-center gap-2 pt-2.5">
+          <CategoryChip category={category} />
+
+          {completed ? (
+            <span
+              className="ml-auto inline-flex items-center gap-1
+                         text-[11px] font-bold uppercase tracking-wider text-comic-green"
+            >
+              <svg
+                className="h-3 w-3"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2.5}
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M4.5 12.75l6 6 9-13.5"
+                />
+              </svg>
+              Solved
+            </span>
+          ) : (
+            <span
+              className="ml-auto inline-flex items-center gap-1
+                         text-[11px] font-bold uppercase tracking-wider text-comic-red"
+            >
+              <svg
+                className="h-3 w-3"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2.5}
+                stroke="currentColor"
+              >
+                <circle cx="12" cy="12" r="9" />
+                <path
+                  strokeLinecap="round"
+                  d="M9 9l6 6"
+                />
+              </svg>
+              Open
+            </span>
+          )}
+        </div>
+      </ComicPanel>
     </button>
   );
 }
 
 export default CaseCard;
+

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getBrief } from '../services/caseService';
 import PlatformPost from '../components/PlatformPost';
+import CaseBriefing from '../components/comic/CaseBriefing';
 
 /* ── Helpers ─────────────────────────────────────────────────────── */
 
@@ -100,6 +101,7 @@ function BriefPage() {
   const [brief, setBrief] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [hasSeenBriefing, setHasSeenBriefing] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -125,9 +127,9 @@ function BriefPage() {
   /* ---------- Loading ---------- */
   if (loading) {
     return (
-      <div className="flex flex-1 items-center justify-center p-10">
+      <div className="bg-halftone flex flex-1 items-center justify-center p-10">
         <svg
-          className="h-8 w-8 animate-spin text-accent"
+          className="h-8 w-8 animate-spin text-comic-red"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -146,7 +148,7 @@ function BriefPage() {
             d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
           />
         </svg>
-        <span className="ml-3 text-sm text-text-muted">Loading post…</span>
+        <span className="ml-3 text-sm font-bold text-comic-ink">Loading post…</span>
       </div>
     );
   }
@@ -154,18 +156,23 @@ function BriefPage() {
   /* ---------- Not found ---------- */
   if (notFound || !brief) {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-4 p-10">
-        <h1 className="text-4xl font-medium text-text-muted">404</h1>
-        <p className="text-sm text-text-muted">Post not found.</p>
+      <div className="bg-halftone flex flex-1 flex-col items-center justify-center gap-4 p-10">
+        <h1 className="font-display text-4xl text-comic-ink/30">404</h1>
+        <p className="text-sm font-bold text-comic-ink/50">Post not found.</p>
         <Link
           to="/"
-          className="mt-2 rounded-base bg-accent px-5 py-2 text-sm font-medium text-white
-                     transition-colors hover:bg-accent-hover"
+          className="mt-2 rounded-lg border-[3px] border-comic-ink bg-comic-red
+                     px-5 py-2 text-sm font-bold text-white shadow-comic-sm comic-press"
         >
           ← Back to Feed
         </Link>
       </div>
     );
+  }
+
+  /* ---------- Case Briefing splash (shown once per visit) ---------- */
+  if (!hasSeenBriefing) {
+    return <CaseBriefing brief={brief} onContinue={() => setHasSeenBriefing(true)} />;
   }
 
   /* ---------- Derived values ---------- */
@@ -175,152 +182,157 @@ function BriefPage() {
 
   /* ---------- Observe screen ---------- */
   return (
-    <article className="mx-auto w-full max-w-xl px-4 py-6 sm:py-10 sm:px-6">
-      {/* Back link */}
-      <Link
-        to="/"
-        className="mb-6 inline-flex items-center gap-1 py-2 text-sm text-text-muted
-                   transition-colors hover:text-text-primary"
-      >
-        <svg
-          className="h-4 w-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth={2}
-          stroke="currentColor"
+    <article className="bg-halftone min-h-full">
+      <div className="mx-auto w-full max-w-xl px-4 py-6 sm:py-10 sm:px-6">
+        {/* Back link */}
+        <Link
+          to="/"
+          className="mb-6 inline-flex items-center gap-1 py-2 text-sm font-bold
+                     text-comic-ink/50 transition-colors hover:text-comic-ink"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M15.75 19.5L8.25 12l7.5-7.5"
-          />
-        </svg>
-        Back to Feed
-      </Link>
-
-      {/* ── Post card container ── */}
-      <div className="rounded-base border border-border-hairline bg-surface-card overflow-hidden">
-
-        {/* ── Poster header ── */}
-        <div className="flex items-center gap-2.5 px-4 pt-4 pb-3">
-          {/* Platform icon avatar */}
-          <span
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
-            style={{ backgroundColor: `${platformColor}18`, color: platformColor }}
+          <svg
+            className="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={2}
+            stroke="currentColor"
           >
-            <span className="h-4.5 w-4.5">{platformIcon}</span>
-          </span>
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15.75 19.5L8.25 12l7.5-7.5"
+            />
+          </svg>
+          Back to Case Board
+        </Link>
 
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-1.5">
-              <span className="truncate text-sm font-medium text-text-primary">
-                {brief.originalPoster}
-              </span>
-              {/* Verified badge (always shown on Observe) */}
-              <svg className="h-4 w-4 shrink-0 text-accent" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-              </svg>
+        {/* ── Post card container ── */}
+        <div className="rounded-lg border-[3px] border-comic-ink bg-comic-paper overflow-hidden
+                        shadow-comic">
+
+          {/* ── Poster header ── */}
+          <div className="flex items-center gap-2.5 px-4 pt-4 pb-3">
+            {/* Platform icon avatar */}
+            <span
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full
+                         border-2 border-comic-ink/20"
+              style={{ backgroundColor: `${platformColor}18`, color: platformColor }}
+            >
+              <span className="h-4.5 w-4.5">{platformIcon}</span>
+            </span>
+
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5">
+                <span className="truncate text-sm font-bold text-comic-ink">
+                  {brief.originalPoster}
+                </span>
+                {/* Verified badge (always shown on Observe) */}
+                <svg className="h-4 w-4 shrink-0 text-comic-blue" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+              </div>
+              <span className="text-xs text-comic-ink/50 font-semibold">{platformLabel}</span>
             </div>
-            <span className="text-xs text-text-muted">{platformLabel}</span>
+          </div>
+
+          {/* ── Media (full size) ── */}
+          <PlatformPost
+            platform={brief.platform}
+            mediaUrl={brief.mediaUrl}
+            mediaType={brief.mediaType}
+            caption={brief.caption}
+            size="full"
+          />
+
+          {/* ── Caption ── */}
+          {brief.caption && (
+            <p className="px-4 pt-3.5 text-sm leading-relaxed text-comic-ink font-medium">
+              {brief.caption}
+            </p>
+          )}
+
+          {/* ── Engagement row ── */}
+          <div className="flex items-center gap-6 px-4 pt-4 pb-3 border-b-[3px] border-comic-ink/15">
+            {/* Likes */}
+            <button type="button" className="group inline-flex items-center gap-1.5 text-comic-ink/50 transition-colors hover:text-comic-red">
+              <svg className="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+              </svg>
+              <span className="text-sm font-bold">{shortNum(brief.engagementLikes)}</span>
+            </button>
+
+            {/* Comments */}
+            <button type="button" className="group inline-flex items-center gap-1.5 text-comic-ink/50 transition-colors hover:text-comic-blue">
+              <svg className="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+              </svg>
+              <span className="text-sm font-bold">{shortNum(brief.engagementComments)}</span>
+            </button>
+
+            {/* Shares */}
+            <button type="button" className="group inline-flex items-center gap-1.5 text-comic-ink/50 transition-colors hover:text-comic-green">
+              <svg className="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8" />
+                <polyline points="16 6 12 2 8 6" />
+                <line x1="12" y1="2" x2="12" y2="15" />
+              </svg>
+              <span className="text-sm font-bold">{shortNum(brief.engagementShares)}</span>
+            </button>
+          </div>
+
+          {/* ── Mock comment previews ── */}
+          <div className="px-4 py-3 space-y-2.5 border-b-[3px] border-comic-ink/15">
+            {MOCK_COMMENTS.map((c) => (
+              <div key={c.handle} className="flex gap-2 text-sm">
+                <span className="shrink-0 font-bold text-comic-ink/70">{c.handle}</span>
+                <span className="text-comic-ink/50 line-clamp-1">{c.text}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* ── Source metadata ── */}
+          <div className="flex items-center gap-2 px-4 py-3 text-xs text-comic-ink/50 font-semibold">
+            <span
+              className="h-3.5 w-3.5 shrink-0"
+              style={{ color: platformColor }}
+            >
+              {platformIcon}
+            </span>
+            <span>Posted on {platformLabel}</span>
+            <span className="text-comic-ink/20">·</span>
+            <span>{formatDate(brief.publishedAt)}</span>
           </div>
         </div>
 
-        {/* ── Media (full size) ── */}
-        <PlatformPost
-          platform={brief.platform}
-          mediaUrl={brief.mediaUrl}
-          mediaType={brief.mediaType}
-          caption={brief.caption}
-          size="full"
-        />
-
-        {/* ── Caption ── */}
-        {brief.caption && (
-          <p className="px-4 pt-3.5 text-sm leading-relaxed text-text-primary">
-            {brief.caption}
-          </p>
-        )}
-
-        {/* ── Engagement row ── */}
-        <div className="flex items-center gap-6 px-4 pt-4 pb-3 border-b border-border-hairline">
-          {/* Likes */}
-          <button type="button" className="group inline-flex items-center gap-1.5 text-text-muted transition-colors hover:text-red-400">
-            <svg className="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-              <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
-            </svg>
-            <span className="text-sm font-medium">{shortNum(brief.engagementLikes)}</span>
-          </button>
-
-          {/* Comments */}
-          <button type="button" className="group inline-flex items-center gap-1.5 text-text-muted transition-colors hover:text-accent">
-            <svg className="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
-            </svg>
-            <span className="text-sm font-medium">{shortNum(brief.engagementComments)}</span>
-          </button>
-
-          {/* Shares */}
-          <button type="button" className="group inline-flex items-center gap-1.5 text-text-muted transition-colors hover:text-emerald-400">
-            <svg className="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8" />
-              <polyline points="16 6 12 2 8 6" />
-              <line x1="12" y1="2" x2="12" y2="15" />
-            </svg>
-            <span className="text-sm font-medium">{shortNum(brief.engagementShares)}</span>
-          </button>
-        </div>
-
-        {/* ── Mock comment previews ── */}
-        <div className="px-4 py-3 space-y-2.5 border-b border-border-hairline">
-          {MOCK_COMMENTS.map((c) => (
-            <div key={c.handle} className="flex gap-2 text-sm">
-              <span className="shrink-0 font-medium text-text-secondary">{c.handle}</span>
-              <span className="text-text-muted line-clamp-1">{c.text}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* ── Source metadata ── */}
-        <div className="flex items-center gap-2 px-4 py-3 text-xs text-text-muted">
-          <span
-            className="h-3.5 w-3.5 shrink-0"
-            style={{ color: platformColor }}
-          >
-            {platformIcon}
-          </span>
-          <span>Posted on {platformLabel}</span>
-          <span className="text-border-hairline">·</span>
-          <span>{formatDate(brief.publishedAt)}</span>
-        </div>
-      </div>
-
-      {/* ── Start Investigation button ── */}
-      <button
-        type="button"
-        onClick={() => navigate(`/cases/${caseId}/investigate`)}
-        className="mt-6 inline-flex w-full items-center justify-center gap-2.5
-                   rounded-base bg-accent px-6 py-3.5
-                   text-sm font-medium text-white shadow-sm
-                   transition-all duration-200
-                   hover:bg-accent-hover hover:shadow-md active:scale-[0.98]"
-      >
-        <svg
-          className="h-5 w-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth={2}
-          stroke="currentColor"
+        {/* ── Start Investigation button ── */}
+        <button
+          type="button"
+          onClick={() => navigate(`/cases/${caseId}/investigate`)}
+          className="mt-6 inline-flex w-full items-center justify-center gap-2.5
+                     rounded-lg border-[3px] border-comic-ink
+                     bg-comic-red px-6 py-3.5
+                     text-sm font-bold text-white shadow-comic
+                     comic-press"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
-          />
-        </svg>
-        Start Investigation
-      </button>
+          <svg
+            className="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={2}
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+            />
+          </svg>
+          Start Investigation
+        </button>
+      </div>
     </article>
   );
 }
 
 export default BriefPage;
+

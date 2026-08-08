@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ShieldCheck, Plus, X } from 'lucide-react';
 import EvidenceCard from './EvidenceCard';
 import { SOURCE_TYPES, EVIDENCE_STATUSES } from '../hooks/useEvidenceLocker';
+import { ComicButton } from './comic';
 
 /**
  * EvidenceLocker — panel component that displays collected evidence
@@ -75,28 +76,28 @@ function EvidenceLocker({ evidenceItems = [], onAdd, onRemove }) {
 
   return (
     <section
-      className="flex flex-col rounded-base border border-border-hairline
-                 bg-surface-card overflow-hidden"
+      className="flex flex-col rounded-lg border-[3px] border-comic-ink
+                 bg-comic-paper overflow-hidden"
     >
       {/* ── Header ── */}
       <header
-        className="flex items-center gap-2.5 border-b border-border-hairline
-                   bg-surface-overlay/60 px-4 py-3"
+        className="flex items-center gap-2.5 border-b-[3px] border-comic-ink
+                   bg-comic-ink px-4 py-3"
       >
         <span className="flex h-7 w-7 items-center justify-center rounded-md
-                         bg-accent-muted text-accent">
+                         bg-comic-yellow text-comic-ink">
           <ShieldCheck size={16} strokeWidth={2} />
         </span>
 
-        <h2 className="text-sm font-medium text-text-primary tracking-wide">
+        <h2 className="text-sm font-bold text-white tracking-wide uppercase">
           Evidence Locker
         </h2>
 
         {count > 0 && (
           <span
             className="ml-auto inline-flex h-5 min-w-5 items-center justify-center
-                       rounded-full bg-accent-muted px-1.5
-                       text-[11px] font-medium text-accent"
+                       rounded-full bg-comic-red px-1.5
+                       text-[11px] font-bold text-white"
           >
             {count}
           </span>
@@ -105,12 +106,12 @@ function EvidenceLocker({ evidenceItems = [], onAdd, onRemove }) {
 
       {/* ── Scrollable card list ── */}
       <div className="flex-1 overflow-y-auto p-3 space-y-2.5 max-h-[420px]
-                      scrollbar-thin scrollbar-thumb-white/8 scrollbar-track-transparent">
+                      scrollbar-thin scrollbar-thumb-comic-ink/15 scrollbar-track-transparent">
         {count === 0 ? (
           <div className="flex flex-col items-center justify-center py-10 gap-2
-                          text-text-muted select-none">
+                          text-comic-ink/40 select-none">
             <ShieldCheck size={28} strokeWidth={1.2} className="opacity-40" />
-            <p className="text-xs">No evidence collected yet.</p>
+            <p className="text-xs font-bold">No evidence collected yet.</p>
           </div>
         ) : (
           evidenceItems.map((item) => (
@@ -125,11 +126,11 @@ function EvidenceLocker({ evidenceItems = [], onAdd, onRemove }) {
               <button
                 type="button"
                 onClick={() => onRemove(item.id)}
-                className="absolute top-2 right-2 z-10 flex h-5 w-5 items-center
+                className="absolute top-5 right-2 z-10 flex h-5 w-5 items-center
                            justify-center rounded-full
-                           bg-surface-overlay/80 text-text-muted
+                           bg-comic-paper border border-comic-ink text-comic-ink
                            opacity-0 transition-opacity duration-150
-                           hover:bg-red-500/20 hover:text-red-400
+                           hover:bg-comic-red hover:text-white hover:border-comic-red
                            group-hover/card:opacity-100"
                 title="Remove evidence"
               >
@@ -143,7 +144,7 @@ function EvidenceLocker({ evidenceItems = [], onAdd, onRemove }) {
       {/* ── Add-evidence form ── */}
       <form
         onSubmit={handleSubmit}
-        className="border-t border-border-hairline bg-surface-overlay/40 p-3
+        className="border-t-[3px] border-comic-ink bg-comic-paper/80 p-3
                    space-y-2.5"
       >
         {/* Title input */}
@@ -153,10 +154,10 @@ function EvidenceLocker({ evidenceItems = [], onAdd, onRemove }) {
           value={form.title}
           onChange={handleChange}
           placeholder="Evidence title or URL…"
-          className="w-full rounded-md border border-border-hairline bg-surface-page
-                     px-3 py-2 text-sm text-text-primary placeholder:text-text-muted
+          className="w-full rounded-md border-2 border-comic-ink/25 bg-white
+                     px-3 py-2 text-sm text-comic-ink placeholder:text-comic-ink/35
                      outline-none transition-colors
-                     focus:border-accent/50 focus:ring-1 focus:ring-accent/25"
+                     focus:border-comic-blue focus:ring-1 focus:ring-comic-blue/25"
         />
 
         {/* Summary textarea */}
@@ -166,10 +167,10 @@ function EvidenceLocker({ evidenceItems = [], onAdd, onRemove }) {
           onChange={handleChange}
           placeholder="Brief description of what this evidence shows…"
           rows={2}
-          className="w-full resize-none rounded-md border border-border-hairline
-                     bg-surface-page px-3 py-2 text-sm text-text-primary
-                     placeholder:text-text-muted outline-none transition-colors
-                     focus:border-accent/50 focus:ring-1 focus:ring-accent/25"
+          className="w-full resize-none rounded-md border-2 border-comic-ink/25 bg-white
+                     px-3 py-2 text-sm text-comic-ink
+                     placeholder:text-comic-ink/35 outline-none transition-colors
+                     focus:border-comic-blue focus:ring-1 focus:ring-comic-blue/25"
         />
 
         {/* Source type + submit row */}
@@ -178,10 +179,10 @@ function EvidenceLocker({ evidenceItems = [], onAdd, onRemove }) {
             name="sourceType"
             value={form.sourceType}
             onChange={handleChange}
-            className="flex-1 appearance-none rounded-md border border-border-hairline
-                       bg-surface-page px-3 py-2 text-sm text-text-primary
+            className="flex-1 appearance-none rounded-md border-2 border-comic-ink/25
+                       bg-white px-3 py-2 text-sm text-comic-ink
                        outline-none transition-colors cursor-pointer
-                       focus:border-accent/50 focus:ring-1 focus:ring-accent/25"
+                       focus:border-comic-blue focus:ring-1 focus:ring-comic-blue/25"
           >
             {Object.entries(SOURCE_LABELS).map(([value, label]) => (
               <option key={value} value={value}>
@@ -190,21 +191,15 @@ function EvidenceLocker({ evidenceItems = [], onAdd, onRemove }) {
             ))}
           </select>
 
-          <button
-            type="submit"
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-md
-                       bg-accent px-3.5 py-2 text-sm font-medium text-white
-                       transition-colors duration-150
-                       hover:bg-accent-hover active:scale-[0.97]"
-          >
+          <ComicButton variant="primary" onClick={() => {}}>
             <Plus size={14} strokeWidth={2.5} />
             Add
-          </button>
+          </ComicButton>
         </div>
 
         {/* Inline validation error */}
         {error && (
-          <p className="text-xs text-red-400 animate-evidence-enter">{error}</p>
+          <p className="text-xs font-bold text-comic-red animate-evidence-enter">{error}</p>
         )}
       </form>
     </section>
@@ -212,3 +207,4 @@ function EvidenceLocker({ evidenceItems = [], onAdd, onRemove }) {
 }
 
 export default EvidenceLocker;
+

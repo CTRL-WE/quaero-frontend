@@ -5,6 +5,7 @@ import { getBoard, toggleHelpful } from '../services/boardService';
 import HelpfulButton from '../components/HelpfulButton';
 import RankBadge from '../components/RankBadge';
 import { getRankTier } from '../utils/rankTiers';
+import { ComicPanel, StampBadge } from '../components/comic';
 
 /**
  * BoardPage — displays all board submissions for a case.
@@ -16,34 +17,22 @@ import { getRankTier } from '../utils/rankTiers';
  * and linking back to the brief. During mock stage, getBoard always resolves.
  */
 
-/* ── Verdict badge styles ─────────────────────────────────────────── */
+/* ── Verdict → StampBadge tone mapping ────────────────────────────── */
 
-const VERDICT_STYLES = {
-  TRUE: {
-    label: 'True',
-    classes: 'bg-emerald-500/10 text-emerald-400 ring-emerald-500/25',
-  },
-  FALSE: {
-    label: 'False',
-    classes: 'bg-red-500/10 text-red-400 ring-red-500/25',
-  },
-  MISLEADING: {
-    label: 'Misleading',
-    classes: 'bg-amber-500/10 text-amber-400 ring-amber-500/25',
-  },
-  UNVERIFIABLE: {
-    label: 'Unverifiable',
-    classes: 'bg-gray-500/10 text-gray-400 ring-gray-500/25',
-  },
-  UNVERIFIED: {
-    label: 'Unverified',
-    classes: 'bg-gray-500/10 text-gray-400 ring-gray-500/25',
-  },
+const VERDICT_TONE = {
+  TRUE: 'green',
+  FALSE: 'red',
+  MISLEADING: 'amber',
+  UNVERIFIABLE: 'red',
+  UNVERIFIED: 'red',
 };
 
-const FALLBACK_VERDICT = {
-  label: 'Unknown',
-  classes: 'bg-gray-500/10 text-gray-400 ring-gray-500/25',
+const VERDICT_LABEL = {
+  TRUE: 'True',
+  FALSE: 'False',
+  MISLEADING: 'Misleading',
+  UNVERIFIABLE: 'Unverifiable',
+  UNVERIFIED: 'Unverified',
 };
 
 /* ── Component ────────────────────────────────────────────────────── */
@@ -178,26 +167,16 @@ function BoardPage() {
     return (
       <div className="flex flex-1 items-center justify-center p-10">
         <svg
-          className="h-8 w-8 animate-spin text-accent"
+          className="h-8 w-8 animate-spin"
+          style={{ color: 'var(--color-comic-brown)' }}
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
         >
-          <circle
-            className="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            strokeWidth="4"
-          />
-          <path
-            className="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-          />
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
         </svg>
-        <span className="ml-3 text-sm text-text-muted">
+        <span className="ml-3 text-sm" style={{ color: 'var(--color-comic-ink)', opacity: 0.6 }}>
           Loading investigation board…
         </span>
       </div>
@@ -208,25 +187,43 @@ function BoardPage() {
   if (gated) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-5 p-10 text-center">
-        <span className="flex h-14 w-14 items-center justify-center rounded-full
-                         bg-amber-500/10 text-amber-400">
-          <ShieldCheck size={28} strokeWidth={1.5} />
-        </span>
-        <div className="max-w-sm space-y-1.5">
-          <h1 className="text-lg font-medium text-text-primary">
-            Board locked
-          </h1>
-          <p className="text-sm text-text-secondary">
-            Submit your reasoning for this case first to unlock the Investigation Board.
-          </p>
-        </div>
-        <Link
-          to={`/cases/${caseId}/brief`}
-          className="mt-2 rounded-base bg-accent px-5 py-2.5 text-sm font-medium text-white
-                     transition-colors hover:bg-accent-hover"
-        >
-          ← Go to case brief
-        </Link>
+        <ComicPanel rotate={-1}>
+          <div className="flex flex-col items-center gap-4 p-4">
+            <span
+              className="flex h-14 w-14 items-center justify-center rounded-full"
+              style={{
+                background: 'rgba(255, 206, 58, 0.15)',
+                border: '3px solid var(--color-comic-ink)',
+              }}
+            >
+              <ShieldCheck size={28} strokeWidth={1.5} style={{ color: 'var(--color-comic-brown)' }} />
+            </span>
+            <h1
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: '1.25rem',
+                color: 'var(--color-comic-ink)',
+              }}
+            >
+              Board Locked
+            </h1>
+            <p className="text-sm font-medium" style={{ color: 'var(--color-comic-ink)', opacity: 0.6 }}>
+              Submit your reasoning for this case first to unlock the Investigation Board.
+            </p>
+            <Link
+              to={`/cases/${caseId}/brief`}
+              className="comic-press mt-2 rounded-sm px-5 py-2.5 text-sm font-bold uppercase tracking-wider"
+              style={{
+                background: 'var(--color-comic-red)',
+                color: 'white',
+                border: '3px solid var(--color-comic-ink)',
+                boxShadow: '4px 4px 0 var(--color-comic-ink)',
+              }}
+            >
+              ← Go to case brief
+            </Link>
+          </div>
+        </ComicPanel>
       </div>
     );
   }
@@ -235,11 +232,20 @@ function BoardPage() {
   if (error) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-4 p-10">
-        <p className="text-sm text-red-400">{error}</p>
+        <ComicPanel rotate={0.5}>
+          <p className="text-sm font-bold p-4 text-center" style={{ color: 'var(--color-comic-red)' }}>
+            ⚠ {error}
+          </p>
+        </ComicPanel>
         <Link
           to="/"
-          className="mt-2 rounded-base bg-accent px-5 py-2 text-sm font-medium text-white
-                     transition-colors hover:bg-accent-hover"
+          className="comic-press rounded-sm px-5 py-2 text-sm font-bold uppercase tracking-wider"
+          style={{
+            background: 'var(--color-comic-red)',
+            color: 'white',
+            border: '3px solid var(--color-comic-ink)',
+            boxShadow: '4px 4px 0 var(--color-comic-ink)',
+          }}
         >
           ← Back to Feed
         </Link>
@@ -253,93 +259,105 @@ function BoardPage() {
       {/* Back link */}
       <Link
         to="/"
-        className="mb-6 inline-flex items-center gap-1.5 text-sm text-text-muted
-                   transition-colors hover:text-text-primary"
+        className="mb-6 inline-flex items-center gap-1.5 text-sm font-semibold transition-colors hover:opacity-70"
+        style={{ color: 'var(--color-comic-ink)', opacity: 0.6 }}
       >
         <ArrowLeft size={16} strokeWidth={2} />
         Back to Feed
       </Link>
 
       {/* Header */}
-      <div className="mb-8 flex items-start gap-3">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center
-                         rounded-base bg-accent-muted text-accent">
-          <Users size={20} strokeWidth={1.8} />
-        </span>
-        <div>
-          <h1 className="text-xl font-medium text-text-primary">
-            Investigation board
-          </h1>
-          <p className="mt-0.5 text-sm text-text-secondary">
-            See how other investigators evaluated this case.
-          </p>
+      <ComicPanel rotate={-0.3} className="mb-8">
+        <div className="flex items-start gap-3">
+          <span
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
+            style={{
+              background: 'rgba(46, 100, 168, 0.12)',
+              border: '2px solid var(--color-comic-ink)',
+            }}
+          >
+            <Users size={20} strokeWidth={1.8} style={{ color: 'var(--color-comic-blue)' }} />
+          </span>
+          <div>
+            <h1
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: '1.25rem',
+                letterSpacing: '0.04em',
+                color: 'var(--color-comic-ink)',
+                margin: 0,
+                textTransform: 'uppercase',
+              }}
+            >
+              Investigation Board
+            </h1>
+            <p className="mt-0.5 text-sm font-medium" style={{ color: 'var(--color-comic-ink)', opacity: 0.55 }}>
+              See how other investigators evaluated this case.
+            </p>
+          </div>
         </div>
-      </div>
+      </ComicPanel>
 
       {/* ── Empty state ── */}
       {entries.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-3 rounded-base
-                        border border-border-hairline bg-surface-card py-16 text-center">
-          <Users size={32} strokeWidth={1.2} className="text-text-muted opacity-40" />
-          <p className="text-sm text-text-muted">
-            No other investigations yet — be the first!
-          </p>
-        </div>
+        <ComicPanel rotate={0.5}>
+          <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
+            <Users size={32} strokeWidth={1.2} style={{ color: 'var(--color-comic-ink)', opacity: 0.3 }} />
+            <p className="text-sm font-semibold" style={{ color: 'var(--color-comic-ink)', opacity: 0.5 }}>
+              No other investigations yet — be the first!
+            </p>
+          </div>
+        </ComicPanel>
       ) : (
         <div className="space-y-4">
           {entries.map((entry) => {
-            const vs = VERDICT_STYLES[entry.verdict] || FALLBACK_VERDICT;
             const ts = toggleState[entry.submissionId] || {};
 
             return (
-              <div
-                key={entry.submissionId}
-                className="group relative flex flex-col gap-4 rounded-base
-                           border border-border-hairline bg-surface-card p-5
-                           transition-all duration-200 ease-out
-                           hover:border-white/12 hover:shadow-lg hover:shadow-black/30"
-              >
+              <ComicPanel key={entry.submissionId} className="bg-halftone">
                 {/* ── Header: username + verdict badge ── */}
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                  {/* Username */}
-                  <span className="text-sm font-medium text-text-primary">
+                  <span className="text-sm font-bold" style={{ color: 'var(--color-comic-ink)' }}>
                     {entry.submitterUsername}
                   </span>
 
-                  {/* Verdict badge */}
-                  <span
-                    className={`inline-flex items-center rounded-full px-2.5 py-0.5
-                                text-[11px] font-medium leading-none tracking-wide
-                                ring-1 ${vs.classes}`}
-                  >
-                    {vs.label}
-                  </span>
+                  {/* Verdict as StampBadge */}
+                  <StampBadge tone={VERDICT_TONE[entry.verdict] ?? 'red'}>
+                    {VERDICT_LABEL[entry.verdict] ?? 'Unknown'}
+                  </StampBadge>
 
                   {/* Rank badge + credibility — pushed right */}
                   <span className="ml-auto flex items-center gap-2">
                     <RankBadge rankTier={getRankTier(entry.submitterCredibility)} />
-                    <span className="text-xs text-text-muted" title="Submitter credibility">
+                    <span
+                      className="text-xs font-semibold"
+                      style={{ color: 'var(--color-comic-ink)', opacity: 0.5 }}
+                      title="Submitter credibility"
+                    >
                       {entry.submitterCredibility.toFixed(1)}% cred
                     </span>
                   </span>
                 </div>
 
                 {/* ── Rationale ── */}
-                <p className="text-sm leading-relaxed text-text-secondary">
+                <p
+                  className="mt-3 text-sm leading-relaxed"
+                  style={{ color: 'var(--color-comic-ink)', opacity: 0.75 }}
+                >
                   {entry.rationale}
                 </p>
 
                 {/* ── Evidence links ── */}
                 {entry.evidenceLinks?.length > 0 && (
-                  <ul className="min-w-0 space-y-1.5 overflow-hidden">
+                  <ul className="mt-3 min-w-0 space-y-1.5 overflow-hidden">
                     {entry.evidenceLinks.map((link) => (
                       <li key={link} className="min-w-0">
                         <a
                           href={link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 text-xs text-accent
-                                     transition-colors hover:text-accent-hover break-all"
+                          className="inline-flex items-center gap-1.5 text-xs font-semibold break-all transition-colors hover:opacity-70"
+                          style={{ color: 'var(--color-comic-blue)' }}
                         >
                           <ExternalLink size={12} strokeWidth={2} className="shrink-0" />
                           {link}
@@ -350,7 +368,10 @@ function BoardPage() {
                 )}
 
                 {/* ── Footer: helpful button + inline error ── */}
-                <div className="flex flex-wrap items-center gap-3 pt-1 border-t border-border-hairline">
+                <div
+                  className="mt-3 flex flex-wrap items-center gap-3 pt-3"
+                  style={{ borderTop: '1px dashed rgba(22,20,18,0.15)' }}
+                >
                   <HelpfulButton
                     helpfulCount={entry.helpfulCount}
                     isMarked={entry.hasCurrentUserMarkedHelpful}
@@ -360,12 +381,15 @@ function BoardPage() {
 
                   {/* Per-entry inline error (toggle failure) */}
                   {ts.error && (
-                    <span className="text-xs text-red-400 animate-evidence-enter">
+                    <span
+                      className="text-xs font-bold animate-evidence-enter"
+                      style={{ color: 'var(--color-comic-red)' }}
+                    >
                       {ts.error}
                     </span>
                   )}
                 </div>
-              </div>
+              </ComicPanel>
             );
           })}
         </div>

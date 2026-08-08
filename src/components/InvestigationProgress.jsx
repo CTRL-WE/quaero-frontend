@@ -1,4 +1,5 @@
 import { FlaskConical, Send } from 'lucide-react';
+import { StampBadge } from './comic';
 
 /**
  * InvestigationProgress — horizontal momentum bar that shows how far
@@ -38,28 +39,24 @@ function InvestigationProgress({ turnCount = 0, nudgeSubmission = false }) {
   if (nudgeSubmission) {
     return (
       <div
-        className="flex items-center gap-3 rounded-base border border-accent/30
-                   bg-accent/8 px-4 py-2.5 animate-evidence-enter"
+        className="flex items-center gap-3 rounded-lg border-[3px] border-comic-yellow
+                   bg-comic-yellow/15 px-4 py-2.5 animate-evidence-enter"
       >
         <span className="flex h-7 w-7 shrink-0 items-center justify-center
-                         rounded-full bg-accent/15 text-accent">
+                         rounded-full bg-comic-yellow text-comic-ink">
           <Send size={14} strokeWidth={2} />
         </span>
 
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-text-primary">
+          <p className="text-sm font-bold text-comic-ink">
             Ready to submit?
           </p>
-          <p className="text-[11px] leading-snug text-text-secondary">
+          <p className="text-[11px] leading-snug text-comic-ink/60">
             You've built a strong case — submit your findings when you're confident.
           </p>
         </div>
 
-        {/* Full bar */}
-        <div className="hidden sm:flex h-1.5 w-20 shrink-0 overflow-hidden rounded-full
-                        bg-accent/15">
-          <div className="h-full w-full rounded-full bg-accent" />
-        </div>
+        <StampBadge tone="green">100%</StampBadge>
       </div>
     );
   }
@@ -69,30 +66,33 @@ function InvestigationProgress({ turnCount = 0, nudgeSubmission = false }) {
 
   return (
     <div
-      className="flex items-center gap-3 rounded-base border border-border-hairline
-                 bg-surface-card/80 px-4 py-2.5"
+      className="flex items-center gap-3 rounded-lg border-2 border-comic-ink/15
+                 bg-comic-paper/60 px-4 py-2.5"
     >
       <span className="flex h-7 w-7 shrink-0 items-center justify-center
-                       rounded-full bg-surface-overlay text-text-muted">
+                       rounded-full bg-comic-ink/10 text-comic-ink/60">
         <FlaskConical size={14} strokeWidth={2} />
       </span>
 
       <div className="min-w-0 flex-1">
-        <p className="text-xs font-medium text-text-secondary">
-          {label}
-        </p>
+        <div className="flex items-center justify-between mb-1">
+          <p className="text-xs font-bold text-comic-ink/70 uppercase tracking-wider">
+            {label}
+          </p>
+          <span className="text-xs font-bold text-comic-ink">{pct}%</span>
+        </div>
 
-        {/* Progress track */}
-        <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full
-                        bg-surface-overlay">
+        {/* Progress track — thick comic bar */}
+        <div className="h-2.5 w-full overflow-hidden rounded-sm
+                        border-2 border-comic-ink/20 bg-comic-paper">
           <div
-            className="h-full rounded-full transition-all duration-500 ease-out"
+            className="h-full rounded-sm transition-all duration-500 ease-out"
             style={{
               width: `${pct}%`,
               background:
                 progress < 0.5
-                  ? 'linear-gradient(90deg, #60a5fa, #818cf8)'
-                  : 'linear-gradient(90deg, #818cf8, #34d399)',
+                  ? 'var(--color-comic-red, #e03e2d)'
+                  : 'var(--color-comic-green, #3f9142)',
             }}
           />
         </div>
@@ -102,3 +102,4 @@ function InvestigationProgress({ turnCount = 0, nudgeSubmission = false }) {
 }
 
 export default InvestigationProgress;
+
